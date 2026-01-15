@@ -26,23 +26,62 @@ export async function fetchRepoContent(owner: string, repo: string): Promise<Fil
         });
 
         // 3. Filter for relevant files (source code, config, readme)
-        // Limit to avoid token limits and noise
+        // Analyze as many files as possible for comprehensive analysis
         const relevantFiles = treeData.tree.filter((item: any) => {
             if (item.type !== "blob") return false;
             const path = item.path?.toLowerCase() || "";
-            const isRoot = !path.includes('/');
 
-            // Exclude lock files, binary assets
-            if (path.includes("node_modules") || path.includes("dist") || path.includes(".git/") || path.endsWith(".lock") || path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".ico") || path.endsWith(".json") && !path.endsWith("package.json") && !path.endsWith("tsconfig.json")) return false;
+            // Exclude only essential noise: node_modules, build artifacts, lock files, and binary files
+            if (path.includes("node_modules") ||
+                path.includes("dist/") ||
+                path.includes("build/") ||
+                path.includes(".git/") ||
+                path.includes("coverage/") ||
+                path.endsWith(".lock") ||
+                path.endsWith(".png") ||
+                path.endsWith(".jpg") ||
+                path.endsWith(".jpeg") ||
+                path.endsWith(".gif") ||
+                path.endsWith(".svg") ||
+                path.endsWith(".ico") ||
+                path.endsWith(".woff") ||
+                path.endsWith(".woff2") ||
+                path.endsWith(".ttf") ||
+                path.endsWith(".eot")) {
+                return false;
+            }
 
-            // Include key configuration
-            if (path.endsWith("package.json") || path.endsWith("readme.md") || path.endsWith("tsconfig.json") || path.endsWith(".env.example")) return true;
+            // Include ALL source code and configuration files
+            const isSource = path.endsWith(".ts") ||
+                path.endsWith(".tsx") ||
+                path.endsWith(".js") ||
+                path.endsWith(".jsx") ||
+                path.endsWith(".py") ||
+                path.endsWith(".go") ||
+                path.endsWith(".java") ||
+                path.endsWith(".rs") ||
+                path.endsWith(".cpp") ||
+                path.endsWith(".c") ||
+                path.endsWith(".h") ||
+                path.endsWith(".css") ||
+                path.endsWith(".scss") ||
+                path.endsWith(".html") ||
+                path.endsWith(".vue") ||
+                path.endsWith(".svelte");
 
-            // Include source files, prioritizing src/ and root
-            const isSource = path.endsWith(".ts") || path.endsWith(".tsx") || path.endsWith(".js") || path.endsWith(".jsx") || path.endsWith(".py") || path.endsWith(".go") || path.endsWith(".css");
+            const isConfig = path.endsWith(".json") ||
+                path.endsWith(".yaml") ||
+                path.endsWith(".yml") ||
+                path.endsWith(".toml") ||
+                path.endsWith(".env") ||
+                path.endsWith(".env.example") ||
+                path.endsWith(".config.js") ||
+                path.endsWith(".config.ts");
 
-            return isSource;
-        }).slice(0, 50); // Increased limit from 20 to 50
+            const isDoc = path.endsWith(".md") || path.endsWith(".txt");
+
+            return isSource || isConfig || isDoc;
+        }).slice(0, 100); // Increased limit to 100 files for comprehensive analysis
 
         // 4. Fetch content for each file
         const files: FileContent[] = [];

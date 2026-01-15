@@ -1,4 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { generateLineByLineExplanation } from "./line-by-line-explainer";
+import { analyzePackageVersions, compareVersions } from "./version-analyzer";
+import { generateSimpleArchitectureDiagram } from "./simple-architecture";
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY || "");
@@ -138,27 +141,43 @@ export async function analyzeCodebase(files: { path: string; content: string }[]
                     avgLinesPerFile: Math.round((complexity.metrics?.totalLines || 0) / (files.length || 1))
                 }
             },
-            architecture: cleanArchitecture.startsWith('graph') ? cleanArchitecture : `graph TD\nError[Diagram Generation Failed]`,
+            architecture: generateSimpleArchitectureDiagram(files),
             errors: [],
             warnings: [],
-            packages: {
-                total: mergedTechnologies.length,
-                all: mergedTechnologies.map((t: any) => ({ name: t.name, current: t.version, latest: "-", status: "up-to-date" })),
-                outdated: [],
-                dependencies: {},
-                devDependencies: {}
-            },
+            packages: (() => {
+                // Analyze package versions from package.json
+                const packageInfo = analyzePackageVersions(files);
+
+                // Update status by comparing versions
+                const packagesWithStatus = packageInfo.map(pkg => ({
+                    ...pkg,
+                    status: compareVersions(pkg.current, pkg.latest)
+                }));
+
+                const outdated = packagesWithStatus.filter(p => p.status === 'outdated');
+
+                return {
+                    total: packagesWithStatus.length,
+                    all: packagesWithStatus,
+                    outdated: outdated,
+                    dependencies: {},
+                    devDependencies: {}
+                };
+            })(),
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            fileAnalysis: explanationData.files.map((f: any) => {
+            fileAnalysis: files.map((f: any) => {
                 const originalFile = files.find(file => file.path === f.path) || files.find(file => file.path.endsWith(f.path));
                 return {
-                    ...f,
+                    path: f.path,
                     language: f.path?.split('.').pop() || 'Text',
                     lines: originalFile?.content.split('\n').length || 0,
                     size: originalFile?.content.length || 0,
                     preview: originalFile?.content.slice(0, 300) || "",
                     content: originalFile?.content || "// Content not found",
-                    explanation: f.explanation || f.purpose || "No detailed explanation available."
+                    // Use line-by-line explanation generator for complete beginner-friendly explanations
+                    explanation: originalFile ? generateLineByLineExplanation(originalFile) : "No detailed explanation available.",
+                    purpose: f.path?.includes('/api/') ? 'API Route' : f.path?.endsWith('.json') ? 'Configuration' : 'Source Code',
+                    keyFeatures: ['See detailed explanation']
                 };
             }),
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -343,7 +362,7 @@ async function analyzeCodebaseLocal(files: { path: string; content: string }[]) 
         if (edgesCount > 30) return; // Cap edges
 
         // Handle normal imports and Next.js aliases
-        const imports = f.content.match(/import .* from ['"](@?[\.\/].+)['"]/g);
+        const imports = f.content.match(/import .* from ['"](@?[\.\\/].+)['"]/g);
 
         if (imports) {
             imports.forEach(imp => {
@@ -368,8 +387,34 @@ async function analyzeCodebaseLocal(files: { path: string; content: string }[]) 
         }
     });
 
-    if (edgesCount === 0) {
-        graph += "    App[App Entry] --> Components\n    App --> Lib[Utilities]\n    Components --> Lib";
+    // Enhanced fallback diagram with project structure
+    if (edgesCount === 0 || nodes.size < 3) {
+        graph = "graph TD\n";
+
+        // Detect project type and create appropriate diagram
+        const hasReact = files.some(f => f.content.includes('react'));
+        const hasNext = files.some(f => f.path.includes('next.config') || f.content.includes('next/'));
+        const hasAPI = files.some(f => f.path.includes('/api/'));
+        const hasComponents = files.some(f => f.path.includes('/components/'));
+        const hasPages = files.some(f => f.path.includes('/pages/') || f.path.includes('/app/'));
+
+        if (hasNext) {
+            graph += "    App[\"Next.js App\"] --> Pages[\"Pages/Routes\"]\n";
+            graph += "    App --> Components[\"Components\"]\n";
+            if (hasAPI) graph += "    App --> API[\"API Routes\"]\n";
+            graph += "    Pages --> Components\n";
+            if (hasAPI) graph += "    Pages --> API\n";
+            graph += "    Components --> Utils[\"Utilities\"]\n";
+        } else if (hasReact) {
+            graph += "    App[\"React App\"] --> Components[\"Components\"]\n";
+            graph += "    App --> Utils[\"Utilities\"]\n";
+            graph += "    Components --> Utils\n";
+        } else {
+            // Generic fallback
+            graph += "    Project[\"Project Root\"] --> Source[\"Source Files\"]\n";
+            graph += "    Project --> Config[\"Configuration\"]\n";
+            graph += "    Source --> Modules[\"Modules\"]\n";
+        }
     }
 
     // 6. Beginner-Friendly Detailed Explanations
@@ -488,7 +533,7 @@ async function analyzeCodebaseLocal(files: { path: string; content: string }[]) 
                 keyFeatures: exports.length > 0 ? exports : ['See explanation'],
                 preview: f.content.slice(0, 300),
                 content: f.content,
-                explanation: explanation
+                explanation: generateLineByLineExplanation(f)
             };
         });
 
@@ -509,16 +554,29 @@ async function analyzeCodebaseLocal(files: { path: string; content: string }[]) 
                 avgLinesPerFile: avgLines
             }
         },
-        architecture: graph,
+        architecture: generateSimpleArchitectureDiagram(files),
         errors,
         warnings,
-        packages: {
-            total: mergedTechnologies.length,
-            all: mergedTechnologies.map((t: any) => ({ name: t.name, current: t.version, latest: "-", status: "up-to-date" })),
-            outdated: outdatedPackages,
-            dependencies: packageData?.dependencies || {},
-            devDependencies: packageData?.devDependencies || {}
-        },
+        packages: (() => {
+            // Analyze package versions from package.json
+            const packageInfo = analyzePackageVersions(files);
+
+            // Update status by comparing versions
+            const packagesWithStatus = packageInfo.map(pkg => ({
+                ...pkg,
+                status: compareVersions(pkg.current, pkg.latest)
+            }));
+
+            const outdated = packagesWithStatus.filter(p => p.status === 'outdated');
+
+            return {
+                total: packagesWithStatus.length,
+                all: packagesWithStatus,
+                outdated: outdated,
+                dependencies: packageData?.dependencies || {},
+                devDependencies: packageData?.devDependencies || {}
+            };
+        })(),
         fileAnalysis,
         qualityAnalysis: [
             { category: "Security", issue: `${errors.length} security hotspots detected`, recommendation: "Check the Errors section for detailed remediation steps.", priority: errors.length > 0 ? "high" : "low" },

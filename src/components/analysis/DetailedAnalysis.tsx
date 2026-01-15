@@ -163,28 +163,35 @@ function CodeExplorer({ files }: { files: AnalysisResult['fileAnalysis'] }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="glass-card flex flex-col h-[600px] overflow-hidden rounded-xl"
+            className="glass-card flex flex-col h-[700px] overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500/5 to-transparent border border-indigo-500/20"
         >
-            <div className="p-4 border-b border-white/5 flex items-center justify-between">
-                <h3 className="text-xl font-semibold flex items-center gap-2">
-                    <FileCode className="w-5 h-5 text-primary" />
-                    Code Explorer
-                </h3>
-                <span className="text-xs text-muted-foreground">{files.length} files analyzed</span>
+            <div className="p-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-indigo-500/10 to-purple-500/10">
+                <div className="flex items-center gap-3">
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-600/10 shadow-lg">
+                        <FileCode className="w-6 h-6 text-indigo-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Code Explorer</h3>
+                </div>
+                <span className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-sm font-semibold text-indigo-300 border border-indigo-500/30">{files.length} files analyzed</span>
             </div>
 
             <div className="flex flex-1 overflow-hidden">
                 {/* File List */}
-                <div className="w-1/3 border-r border-white/5 overflow-y-auto bg-black/20">
+                <div className="w-1/3 border-r border-white/10 overflow-y-auto bg-gradient-to-b from-black/40 to-black/20">
                     {files.map((file, i) => (
                         <button
                             key={i}
                             onClick={() => setSelectedFile(file)}
-                            className={`w-full text-left p-3 text-sm hover:bg-white/5 transition-colors flex items-center justify-between group ${selectedFile?.path === file.path ? 'bg-primary/10 border-l-2 border-primary' : 'border-l-2 border-transparent'
+                            className={`w-full text-left p-4 text-sm hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-purple-500/10 transition-all duration-200 flex items-center justify-between group border-b border-white/5 ${selectedFile?.path === file.path
+                                    ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-l-4 border-indigo-400 shadow-lg shadow-indigo-500/10'
+                                    : 'border-l-4 border-transparent hover:border-indigo-500/50'
                                 }`}
                         >
-                            <span className="truncate font-mono">{file.path}</span>
-                            <span className="text-xs text-muted-foreground group-hover:text-primary">{file.language}</span>
+                            <span className="truncate font-mono text-gray-300 group-hover:text-indigo-300 transition-colors">{file.path}</span>
+                            <span className={`text-xs px-2 py-1 rounded-md font-medium ${selectedFile?.path === file.path
+                                    ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50'
+                                    : 'bg-white/5 text-gray-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300'
+                                }`}>{file.language}</span>
                         </button>
                     ))}
                 </div>
@@ -193,30 +200,33 @@ function CodeExplorer({ files }: { files: AnalysisResult['fileAnalysis'] }) {
                 <div className="flex-1 flex flex-col overflow-hidden bg-[#0d0d0d]">
                     {selectedFile ? (
                         <>
-                            <div className="p-2 border-b border-white/5 bg-white/5 flex justify-between items-center px-4">
-                                <span className="text-xs font-mono opacity-50">{selectedFile.path}</span>
+                            <div className="p-3 border-b border-white/10 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex justify-between items-center px-5">
+                                <span className="text-sm font-mono text-indigo-300 font-semibold">{selectedFile.path}</span>
                                 <div className="flex gap-2 text-xs">
-                                    <span className="px-2 py-0.5 rounded bg-white/5">{selectedFile.lines} lines</span>
-                                    <span className="px-2 py-0.5 rounded bg-white/5">{(selectedFile.size / 1024).toFixed(1)} KB</span>
+                                    <span className="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 border border-blue-500/30 font-medium">{selectedFile.lines} lines</span>
+                                    <span className="px-3 py-1 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30 font-medium">{(selectedFile.size / 1024).toFixed(1)} KB</span>
                                 </div>
                             </div>
 
                             <div className="flex-1 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-white/10 grid grid-rows-2 h-full">
                                 {/* Code View */}
-                                <div className="row-span-1 border-b border-white/5 overflow-auto bg-[#0a0a0a] relative group">
-                                    <div className="absolute top-2 right-2 px-2 py-1 bg-black/50 rounded text-xs text-muted-foreground z-10 pointer-events-none">
-                                        Source Code
+                                <div className="row-span-1 border-b border-white/10 overflow-auto bg-[#0a0a0a] relative group">
+                                    <div className="absolute top-3 right-3 px-3 py-1.5 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-lg text-xs font-semibold text-green-300 z-10 pointer-events-none shadow-lg">
+                                        📄 Source Code
                                     </div>
-                                    <pre className="p-4 text-xs font-mono leading-relaxed text-gray-300 tab-4">
+                                    <pre className="p-6 text-xs font-mono leading-relaxed text-gray-300 tab-4">
                                         <code>{selectedFile.content || selectedFile.preview || "// Content not available"}</code>
                                     </pre>
                                 </div>
 
                                 {/* Explanation View */}
-                                <div className="row-span-1 overflow-auto bg-[#111111] p-6">
-                                    <div className="mb-2 flex items-center gap-2">
-                                        <span className="text-xs uppercase tracking-wider font-bold text-primary">AI Explanation</span>
-                                        <div className="h-px flex-1 bg-white/5"></div>
+                                <div className="row-span-1 overflow-auto bg-gradient-to-b from-[#111111] to-[#0a0a0a] p-6">
+                                    <div className="mb-4 flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20">
+                                            <span className="text-lg">🤖</span>
+                                        </div>
+                                        <span className="text-sm uppercase tracking-wider font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">AI Explanation</span>
+                                        <div className="h-px flex-1 bg-gradient-to-r from-indigo-500/50 to-transparent"></div>
                                     </div>
                                     <div className="prose prose-invert prose-sm max-w-none">
                                         <p className="whitespace-pre-wrap text-gray-400 leading-relaxed font-sans">

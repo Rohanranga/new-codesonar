@@ -552,15 +552,15 @@ function SummaryCard({ data }) {
                     opacity: 1,
                     x: 0
                 },
-                className: "glass-card p-6 rounded-xl",
+                className: "glass-card p-6 rounded-xl bg-gradient-to-br from-blue-500/5 to-transparent border border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex items-center gap-3 mb-4",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "p-2 rounded-lg bg-blue-500/10",
+                                className: "p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 shadow-lg",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$code$2d$xml$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Code2$3e$__["Code2"], {
-                                    className: "w-5 h-5 text-blue-400"
+                                    className: "w-6 h-6 text-blue-400"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/analysis/SummaryCard.tsx",
                                     lineNumber: 21,
@@ -572,7 +572,7 @@ function SummaryCard({ data }) {
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                className: "text-lg font-semibold",
+                                className: "text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent",
                                 children: "Project Summary"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/analysis/SummaryCard.tsx",
@@ -586,7 +586,7 @@ function SummaryCard({ data }) {
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        className: "text-muted-foreground leading-relaxed",
+                        className: "text-gray-300 leading-relaxed text-sm",
                         children: data.summary
                     }, void 0, false, {
                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
@@ -611,15 +611,15 @@ function SummaryCard({ data }) {
                 transition: {
                     delay: 0.1
                 },
-                className: "glass-card p-6 rounded-xl",
+                className: "glass-card p-6 rounded-xl bg-gradient-to-br from-purple-500/5 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex items-center gap-3 mb-4",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "p-2 rounded-lg bg-purple-500/10",
+                                className: "p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 shadow-lg",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layers$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Layers$3e$__["Layers"], {
-                                    className: "w-5 h-5 text-purple-400"
+                                    className: "w-6 h-6 text-purple-400"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/analysis/SummaryCard.tsx",
                                     lineNumber: 38,
@@ -631,7 +631,7 @@ function SummaryCard({ data }) {
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                className: "text-lg font-semibold",
+                                className: "text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent",
                                 children: "Tech Stack"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/analysis/SummaryCard.tsx",
@@ -650,7 +650,7 @@ function SummaryCard({ data }) {
                             data.techStack.languages.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-xs text-muted-foreground mb-1",
+                                        className: "text-xs font-semibold text-blue-400 mb-2",
                                         children: "Languages"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
@@ -660,7 +660,7 @@ function SummaryCard({ data }) {
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex flex-wrap gap-2",
                                         children: data.techStack.languages.map((tech, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "px-2 py-1 rounded-md bg-blue-500/20 text-xs",
+                                                className: "px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-xs font-medium text-blue-300 border border-blue-500/30 hover:border-blue-400/50 hover:shadow-md hover:shadow-blue-500/20 transition-all duration-200",
                                                 children: tech
                                             }, i, false, {
                                                 fileName: "[project]/src/components/analysis/SummaryCard.tsx",
@@ -681,7 +681,7 @@ function SummaryCard({ data }) {
                             data.techStack.frameworks.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-xs text-muted-foreground mb-1",
+                                        className: "text-xs font-semibold text-purple-400 mb-2",
                                         children: "Frameworks"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
@@ -691,7 +691,7 @@ function SummaryCard({ data }) {
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex flex-wrap gap-2",
                                         children: data.techStack.frameworks.map((tech, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "px-2 py-1 rounded-md bg-purple-500/20 text-xs",
+                                                className: "px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-xs font-medium text-purple-300 border border-purple-500/30 hover:border-purple-400/50 hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200",
                                                 children: tech
                                             }, i, false, {
                                                 fileName: "[project]/src/components/analysis/SummaryCard.tsx",
@@ -733,15 +733,15 @@ function SummaryCard({ data }) {
                 transition: {
                     delay: 0.2
                 },
-                className: "glass-card p-6 rounded-xl md:col-span-2",
+                className: "glass-card p-6 rounded-xl md:col-span-2 bg-gradient-to-br from-orange-500/5 to-transparent border border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex items-center gap-3 mb-4",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "p-2 rounded-lg bg-orange-500/10",
+                                className: "p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-600/10 shadow-lg",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$zap$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Zap$3e$__["Zap"], {
-                                    className: "w-5 h-5 text-orange-400"
+                                    className: "w-6 h-6 text-orange-400"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/analysis/SummaryCard.tsx",
                                     lineNumber: 78,
@@ -753,7 +753,7 @@ function SummaryCard({ data }) {
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                className: "text-lg font-semibold",
+                                className: "text-xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent",
                                 children: "Complexity Analysis"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/analysis/SummaryCard.tsx",
@@ -761,7 +761,7 @@ function SummaryCard({ data }) {
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: `ml-auto px-3 py-1 rounded-full text-sm font-bold ${data.complexity.score > 7 ? 'bg-red-500/20 text-red-400' : data.complexity.score > 4 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-green-500/20 text-green-400'}`,
+                                className: `ml-auto px-4 py-2 rounded-full text-sm font-bold shadow-lg ${data.complexity.score > 7 ? 'bg-gradient-to-r from-red-500/30 to-rose-500/30 text-red-300 border border-red-500/50' : data.complexity.score > 4 ? 'bg-gradient-to-r from-yellow-500/30 to-amber-500/30 text-yellow-300 border border-yellow-500/50' : 'bg-gradient-to-r from-green-500/30 to-emerald-500/30 text-green-300 border border-green-500/50'}`,
                                 children: [
                                     "Score: ",
                                     data.complexity.score,
@@ -779,92 +779,95 @@ function SummaryCard({ data }) {
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        className: "text-muted-foreground",
+                        className: "text-gray-300 text-sm leading-relaxed",
                         children: data.complexity.analysis
                     }, void 0, false, {
                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                        lineNumber: 88,
+                        lineNumber: 90,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-white/10",
+                        className: "grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-white/10",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "text-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-xs text-muted-foreground",
+                                        className: "text-xs font-semibold text-blue-400 mb-1",
                                         children: "Total Files"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                                        lineNumber: 93,
+                                        lineNumber: 95,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-lg font-semibold",
+                                        className: "text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent",
                                         children: data.complexity.metrics.totalFiles
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                                        lineNumber: 94,
+                                        lineNumber: 96,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                                lineNumber: 92,
+                                lineNumber: 94,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "text-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-xs text-muted-foreground",
+                                        className: "text-xs font-semibold text-purple-400 mb-1",
                                         children: "Total Lines"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                                        lineNumber: 97,
+                                        lineNumber: 99,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-lg font-semibold",
+                                        className: "text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent",
                                         children: data.complexity.metrics.totalLines.toLocaleString()
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                                        lineNumber: 98,
+                                        lineNumber: 100,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                                lineNumber: 96,
+                                lineNumber: 98,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "text-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-xs text-muted-foreground",
+                                        className: "text-xs font-semibold text-orange-400 mb-1",
                                         children: "Avg Lines/File"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                                        lineNumber: 101,
+                                        lineNumber: 103,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-lg font-semibold",
+                                        className: "text-2xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent",
                                         children: data.complexity.metrics.avgLinesPerFile
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                                        lineNumber: 102,
+                                        lineNumber: 104,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                                lineNumber: 100,
+                                lineNumber: 102,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/analysis/SummaryCard.tsx",
-                        lineNumber: 91,
+                        lineNumber: 93,
                         columnNumber: 17
                     }, this)
                 ]
@@ -912,23 +915,31 @@ function ArchitectureView({ diagram }) {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "ArchitectureView.useEffect": ()=>{
             if (containerRef.current) {
+                // Use fallback diagram if none provided
+                const diagramToRender = diagram && diagram.trim().length > 0 ? diagram : `graph TD
+    A["App"] --> B["Pages"]
+    A --> C["Components"]
+    B --> C`;
+                console.log("Architecture diagram:", diagramToRender);
                 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$mermaid$2f$dist$2f$mermaid$2e$core$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].initialize({
                     startOnLoad: true,
                     theme: "dark",
                     securityLevel: "loose",
                     fontFamily: "inherit"
                 });
-                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$mermaid$2f$dist$2f$mermaid$2e$core$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].render("mermaid-diagram", diagram).then({
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$mermaid$2f$dist$2f$mermaid$2e$core$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].render("mermaid-diagram", diagramToRender).then({
                     "ArchitectureView.useEffect": ({ svg })=>{
                         if (containerRef.current) {
                             containerRef.current.innerHTML = svg;
+                            console.log("Mermaid diagram rendered successfully");
                         }
                     }
                 }["ArchitectureView.useEffect"]).catch({
                     "ArchitectureView.useEffect": (error)=>{
                         console.error("Mermaid render error:", error);
+                        console.error("Diagram content:", diagramToRender);
                         if (containerRef.current) {
-                            containerRef.current.innerHTML = "<p class='text-red-400'>Failed to render diagram</p>";
+                            containerRef.current.innerHTML = "<p class='text-red-400'>Failed to render diagram. Check console for details.</p>";
                         }
                     }
                 }["ArchitectureView.useEffect"]);
@@ -960,12 +971,12 @@ function ArchitectureView({ diagram }) {
                             className: "w-5 h-5 text-green-400"
                         }, void 0, false, {
                             fileName: "[project]/src/components/analysis/ArchitectureView.tsx",
-                            lineNumber: 46,
+                            lineNumber: 58,
                             columnNumber: 21
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/analysis/ArchitectureView.tsx",
-                        lineNumber: 45,
+                        lineNumber: 57,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -973,13 +984,13 @@ function ArchitectureView({ diagram }) {
                         children: "Visual Architecture"
                     }, void 0, false, {
                         fileName: "[project]/src/components/analysis/ArchitectureView.tsx",
-                        lineNumber: 48,
+                        lineNumber: 60,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/analysis/ArchitectureView.tsx",
-                lineNumber: 44,
+                lineNumber: 56,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -987,13 +998,13 @@ function ArchitectureView({ diagram }) {
                 className: "w-full overflow-x-auto flex justify-center p-4 bg-black/20 rounded-lg"
             }, void 0, false, {
                 fileName: "[project]/src/components/analysis/ArchitectureView.tsx",
-                lineNumber: 51,
+                lineNumber: 63,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/analysis/ArchitectureView.tsx",
-        lineNumber: 38,
+        lineNumber: 50,
         columnNumber: 9
     }, this);
 }
@@ -1469,22 +1480,36 @@ function CodeExplorer({ files }) {
         transition: {
             delay: 0.2
         },
-        className: "glass-card flex flex-col h-[600px] overflow-hidden rounded-xl",
+        className: "glass-card flex flex-col h-[700px] overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500/5 to-transparent border border-indigo-500/20",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "p-4 border-b border-white/5 flex items-center justify-between",
+                className: "p-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-indigo-500/10 to-purple-500/10",
                 children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                        className: "text-xl font-semibold flex items-center gap-2",
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex items-center gap-3",
                         children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$code$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileCode$3e$__["FileCode"], {
-                                className: "w-5 h-5 text-primary"
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "p-3 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-600/10 shadow-lg",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$code$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileCode$3e$__["FileCode"], {
+                                    className: "w-6 h-6 text-indigo-400"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
+                                    lineNumber: 171,
+                                    columnNumber: 25
+                                }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
                                 lineNumber: 170,
                                 columnNumber: 21
                             }, this),
-                            "Code Explorer"
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                className: "text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent",
+                                children: "Code Explorer"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
+                                lineNumber: 173,
+                                columnNumber: 21
+                            }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
@@ -1492,14 +1517,14 @@ function CodeExplorer({ files }) {
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "text-xs text-muted-foreground",
+                        className: "px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-sm font-semibold text-indigo-300 border border-indigo-500/30",
                         children: [
                             files.length,
                             " files analyzed"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                        lineNumber: 173,
+                        lineNumber: 175,
                         columnNumber: 17
                     }, this)
                 ]
@@ -1512,36 +1537,36 @@ function CodeExplorer({ files }) {
                 className: "flex flex-1 overflow-hidden",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "w-1/3 border-r border-white/5 overflow-y-auto bg-black/20",
+                        className: "w-1/3 border-r border-white/10 overflow-y-auto bg-gradient-to-b from-black/40 to-black/20",
                         children: files.map((file, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                 onClick: ()=>setSelectedFile(file),
-                                className: `w-full text-left p-3 text-sm hover:bg-white/5 transition-colors flex items-center justify-between group ${selectedFile?.path === file.path ? 'bg-primary/10 border-l-2 border-primary' : 'border-l-2 border-transparent'}`,
+                                className: `w-full text-left p-4 text-sm hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-purple-500/10 transition-all duration-200 flex items-center justify-between group border-b border-white/5 ${selectedFile?.path === file.path ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-l-4 border-indigo-400 shadow-lg shadow-indigo-500/10' : 'border-l-4 border-transparent hover:border-indigo-500/50'}`,
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "truncate font-mono",
+                                        className: "truncate font-mono text-gray-300 group-hover:text-indigo-300 transition-colors",
                                         children: file.path
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                        lineNumber: 186,
+                                        lineNumber: 190,
                                         columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "text-xs text-muted-foreground group-hover:text-primary",
+                                        className: `text-xs px-2 py-1 rounded-md font-medium ${selectedFile?.path === file.path ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50' : 'bg-white/5 text-gray-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300'}`,
                                         children: file.language
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                        lineNumber: 187,
+                                        lineNumber: 191,
                                         columnNumber: 29
                                     }, this)
                                 ]
                             }, i, true, {
                                 fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                lineNumber: 180,
+                                lineNumber: 182,
                                 columnNumber: 25
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                        lineNumber: 178,
+                        lineNumber: 180,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1549,112 +1574,127 @@ function CodeExplorer({ files }) {
                         children: selectedFile ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "p-2 border-b border-white/5 bg-white/5 flex justify-between items-center px-4",
+                                    className: "p-3 border-b border-white/10 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex justify-between items-center px-5",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                            className: "text-xs font-mono opacity-50",
+                                            className: "text-sm font-mono text-indigo-300 font-semibold",
                                             children: selectedFile.path
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                            lineNumber: 197,
+                                            lineNumber: 204,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "flex gap-2 text-xs",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "px-2 py-0.5 rounded bg-white/5",
+                                                    className: "px-3 py-1 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 border border-blue-500/30 font-medium",
                                                     children: [
                                                         selectedFile.lines,
                                                         " lines"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                                    lineNumber: 199,
+                                                    lineNumber: 206,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "px-2 py-0.5 rounded bg-white/5",
+                                                    className: "px-3 py-1 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30 font-medium",
                                                     children: [
                                                         (selectedFile.size / 1024).toFixed(1),
                                                         " KB"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                                    lineNumber: 200,
+                                                    lineNumber: 207,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                            lineNumber: 198,
+                                            lineNumber: 205,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                    lineNumber: 196,
+                                    lineNumber: 203,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "flex-1 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-white/10 grid grid-rows-2 h-full",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "row-span-1 border-b border-white/5 overflow-auto bg-[#0a0a0a] relative group",
+                                            className: "row-span-1 border-b border-white/10 overflow-auto bg-[#0a0a0a] relative group",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "absolute top-2 right-2 px-2 py-1 bg-black/50 rounded text-xs text-muted-foreground z-10 pointer-events-none",
-                                                    children: "Source Code"
+                                                    className: "absolute top-3 right-3 px-3 py-1.5 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-lg text-xs font-semibold text-green-300 z-10 pointer-events-none shadow-lg",
+                                                    children: "📄 Source Code"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                                    lineNumber: 207,
+                                                    lineNumber: 214,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
-                                                    className: "p-4 text-xs font-mono leading-relaxed text-gray-300 tab-4",
+                                                    className: "p-6 text-xs font-mono leading-relaxed text-gray-300 tab-4",
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
                                                         children: selectedFile.content || selectedFile.preview || "// Content not available"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                                        lineNumber: 211,
+                                                        lineNumber: 218,
                                                         columnNumber: 41
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                                    lineNumber: 210,
+                                                    lineNumber: 217,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                            lineNumber: 206,
+                                            lineNumber: 213,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "row-span-1 overflow-auto bg-[#111111] p-6",
+                                            className: "row-span-1 overflow-auto bg-gradient-to-b from-[#111111] to-[#0a0a0a] p-6",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "mb-2 flex items-center gap-2",
+                                                    className: "mb-4 flex items-center gap-3",
                                                     children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "p-2 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20",
+                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-lg",
+                                                                children: "🤖"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
+                                                                lineNumber: 226,
+                                                                columnNumber: 45
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
+                                                            lineNumber: 225,
+                                                            columnNumber: 41
+                                                        }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            className: "text-xs uppercase tracking-wider font-bold text-primary",
+                                                            className: "text-sm uppercase tracking-wider font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent",
                                                             children: "AI Explanation"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                                            lineNumber: 218,
+                                                            lineNumber: 228,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "h-px flex-1 bg-white/5"
+                                                            className: "h-px flex-1 bg-gradient-to-r from-indigo-500/50 to-transparent"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                                            lineNumber: 219,
+                                                            lineNumber: 229,
                                                             columnNumber: 41
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                                    lineNumber: 217,
+                                                    lineNumber: 224,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1664,24 +1704,24 @@ function CodeExplorer({ files }) {
                                                         children: selectedFile.explanation
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                                        lineNumber: 222,
+                                                        lineNumber: 232,
                                                         columnNumber: 41
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                                    lineNumber: 221,
+                                                    lineNumber: 231,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                            lineNumber: 216,
+                                            lineNumber: 223,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                                    lineNumber: 204,
+                                    lineNumber: 211,
                                     columnNumber: 29
                                 }, this)
                             ]
@@ -1690,18 +1730,18 @@ function CodeExplorer({ files }) {
                             children: "Select a file to view content"
                         }, void 0, false, {
                             fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                            lineNumber: 230,
+                            lineNumber: 240,
                             columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                        lineNumber: 193,
+                        lineNumber: 200,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/analysis/DetailedAnalysis.tsx",
-                lineNumber: 176,
+                lineNumber: 178,
                 columnNumber: 13
             }, this)
         ]

@@ -14,6 +14,16 @@ export function ArchitectureView({ diagram }: ArchitectureViewProps) {
 
     useEffect(() => {
         if (containerRef.current) {
+            // Use fallback diagram if none provided
+            const diagramToRender = diagram && diagram.trim().length > 0
+                ? diagram
+                : `graph TD
+    A["App"] --> B["Pages"]
+    A --> C["Components"]
+    B --> C`;
+
+            console.log("Architecture diagram:", diagramToRender);
+
             mermaid.initialize({
                 startOnLoad: true,
                 theme: "dark",
@@ -21,14 +31,16 @@ export function ArchitectureView({ diagram }: ArchitectureViewProps) {
                 fontFamily: "inherit",
             });
 
-            mermaid.render("mermaid-diagram", diagram).then(({ svg }) => {
+            mermaid.render("mermaid-diagram", diagramToRender).then(({ svg }) => {
                 if (containerRef.current) {
                     containerRef.current.innerHTML = svg;
+                    console.log("Mermaid diagram rendered successfully");
                 }
             }).catch((error) => {
                 console.error("Mermaid render error:", error);
+                console.error("Diagram content:", diagramToRender);
                 if (containerRef.current) {
-                    containerRef.current.innerHTML = "<p class='text-red-400'>Failed to render diagram</p>";
+                    containerRef.current.innerHTML = "<p class='text-red-400'>Failed to render diagram. Check console for details.</p>";
                 }
             });
         }
