@@ -2,6 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { generateLineByLineExplanation } from "./line-by-line-explainer";
 import { analyzePackageVersions, compareVersions } from "./version-analyzer";
 import { generateSimpleArchitectureDiagram } from "./simple-architecture";
+import { analyzeCodeForErrors } from "./error-analyzer";
+import { analyzeForImprovements } from "./improvement-analyzer";
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY || "");
@@ -45,18 +47,39 @@ const prompts = {
   `,
 
     generateArchitecture: (context: string) => `
-    You are an expert software architect. Generate a Mermaid.js flowchart (graph TD) of the high-level system architecture.
+    You are an expert software architect. Analyze the provided codebase and generate a Mermaid.js flowchart showing the DATA FLOW through the system.
     
-    Rules:
-    - START WITH "graph TD"
-    - Keep it simple: max 15-20 nodes.
-    - Node names must be single words or quoted strings.
-    - Avoid subgraphs if possible to prevent rendering errors.
-    - NO markdown fences.
+    CRITICAL RULES:
+    - START WITH "flowchart TD" (not "graph TD")
+    - Show how data moves through the application (User → Frontend → Backend → Services → Database → AI → Results)
+    - Identify actual components from the code (API routes, services, database, external APIs)
+    - Use descriptive node labels that reflect the actual project
+    - Include emojis for visual appeal (👤 User, 🖥️ Frontend, ⚙️ Backend, 📦 Service, 🤖 AI, 💾 Database)
+    - Maximum 20 nodes
+    - Use proper Mermaid syntax: NodeID["Label"] --> NodeID2["Label"]
+    - Add styling classes at the end
     
-    Repository Content: ${context.slice(0, 40000)}
+    ANALYZE THE CODE FOR:
+    1. Entry points (pages, routes)
+    2. API endpoints (/api/* files)
+    3. External services (GitHub, OpenAI, databases)
+    4. Data processing (lib/* files)
+    5. State management
+    6. AI/ML components
     
-    Return only the raw Mermaid string.
+    Repository Content: ${context.slice(0, 50000)}
+    
+    Return ONLY the raw Mermaid flowchart code, no markdown fences, no explanations.
+    
+    Example format:
+    flowchart TD
+        User["👤 User"] -->|"Input"| Frontend["🖥️ Frontend"]
+        Frontend -->|"Request"| API["⚙️ API"]
+        API -->|"Fetch"| Service["📦 Service"]
+        Service -->|"Data"| AI["🤖 AI"]
+        AI -->|"Results"| API
+        API -->|"Response"| Frontend
+        Frontend -->|"Display"| User
   `,
 
     generateSummary: (details: any) => `
@@ -72,15 +95,19 @@ const prompts = {
 };
 
 export async function analyzeCodebase(files: { path: string; content: string }[]) {
-    // 1. Prepare minimal context
+    // 1. Prepare comprehensive context from ALL files
     const context = files
         .filter(f => !f.path.includes('lock'))
-        .map(f => `File: ${f.path}\n\`\`\`${f.path.split('.').pop() || 'txt'}\n${f.content.slice(0, 2000)}\n\`\`\``) // Reduced context per file for aggregate prompts
+        .map(f => `File: ${f.path}\n\`\`\`${f.path.split('.').pop() || 'txt'}\n${f.content.slice(0, 3000)}\n\`\`\``) // Increased from 2000 to 3000
         .join("\n\n");
 
     try {
         // 2. Run Specialized Agents in Parallel
         console.log("Starting Multi-Agent Analysis...");
+        console.log("=== FILES BEING ANALYZED ===");
+        console.log("Total files:", files.length);
+        console.log("Sample files:", files.slice(0, 5).map(f => f.path));
+        console.log("===========================");
 
         const [techStackRes, complexityRes, improvementsRes, explanationRes, architectureRes] = await Promise.all([
             model.generateContent(prompts.identifyTechStack(context)),
@@ -109,6 +136,11 @@ export async function analyzeCodebase(files: { path: string; content: string }[]
             .replace(/```mermaid/g, '')
             .replace(/```/g, '')
             .trim();
+
+        console.log("=== ARCHITECTURE GENERATION ===");
+        console.log("Raw AI Response Length:", architectureRes.response.text().length);
+        console.log("Clean Architecture:", cleanArchitecture.substring(0, 200));
+        console.log("===============================");
 
         // Merge Tech Stack
         const mergedTechnologies = [
@@ -141,9 +173,16 @@ export async function analyzeCodebase(files: { path: string; content: string }[]
                     avgLinesPerFile: Math.round((complexity.metrics?.totalLines || 0) / (files.length || 1))
                 }
             },
-            architecture: generateSimpleArchitectureDiagram(files),
-            errors: [],
-            warnings: [],
+            architecture: await (async () => {
+                try {
+                    const { generateArchitectureDiagram } = await import('./simple-architecture');
+                    return await generateArchitectureDiagram(files);
+                } catch (err) {
+                    console.error("Architecture generation error:", err);
+                    return cleanArchitecture; // Fallback to AI-generated from parallel call
+                }
+            })(),
+            ...analyzeCodeForErrors(files), // Re-enabled with limits
             packages: (() => {
                 // Analyze package versions from package.json
                 const packageInfo = analyzePackageVersions(files);
@@ -186,7 +225,8 @@ export async function analyzeCodebase(files: { path: string; content: string }[]
                 issue: imp.title,
                 recommendation: imp.explanation,
                 priority: imp.priority || "medium"
-            }))
+            })),
+            improvements: analyzeForImprovements(files) // Add potential changes
         };
 
     } catch (error) {
@@ -581,7 +621,8 @@ async function analyzeCodebaseLocal(files: { path: string; content: string }[]) 
         qualityAnalysis: [
             { category: "Security", issue: `${errors.length} security hotspots detected`, recommendation: "Check the Errors section for detailed remediation steps.", priority: errors.length > 0 ? "high" : "low" },
             { category: "Maintainability", issue: `Avg file size is ${avgLines} lines`, recommendation: avgLines > 200 ? "Refactor large files into smaller components." : "File sizes look healthy.", priority: "medium" }
-        ]
+        ],
+        improvements: analyzeForImprovements(files) // Add potential changes
     };
 }
 

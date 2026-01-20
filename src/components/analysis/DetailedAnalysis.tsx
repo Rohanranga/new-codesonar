@@ -1,9 +1,10 @@
 "use client";
 
 import { AnalysisResult } from "@/types/analysis";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, AlertTriangle, Package, FileCode, CheckCircle } from "lucide-react";
+import { PotentialChanges } from "./PotentialChanges";
 
 interface DetailedAnalysisProps {
     data: AnalysisResult;
@@ -57,6 +58,40 @@ export function DetailedAnalysis({ data }: DetailedAnalysisProps) {
                                 )}
                             </div>
                         ))}
+
+                        {/* Warnings */}
+                        {data.warnings.map((warning, i) => (
+                            <div key={`warning-${i}`} className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg space-y-3">
+                                <div className="flex items-start gap-2">
+                                    <AlertTriangle className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-yellow-400">{warning.message}</p>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {warning.file} {warning.line > 0 && `(Line ${warning.line})`}
+                                        </p>
+                                    </div>
+                                    <span className="px-2 py-0.5 bg-yellow-500/20 rounded text-xs text-yellow-300 uppercase font-bold">
+                                        {warning.severity}
+                                    </span>
+                                </div>
+                                {warning.suggestion && (
+                                    <div className="text-sm bg-black/20 p-3 rounded text-gray-300 border-l-2 border-blue-500">
+                                        <span className="text-blue-400 font-semibold">💡 Suggestion: </span>
+                                        {warning.suggestion}
+                                    </div>
+                                )}
+                                {warning.fixCode && (
+                                    <div className="text-xs bg-black/40 p-3 rounded border border-green-500/20">
+                                        <div className="text-green-400 font-semibold mb-2 flex items-center gap-2">
+                                            <span>✅ How to Fix:</span>
+                                        </div>
+                                        <pre className="text-gray-300 font-mono whitespace-pre-wrap leading-relaxed">
+                                            {warning.fixCode}
+                                        </pre>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 </motion.div>
             )}
@@ -105,11 +140,6 @@ export function DetailedAnalysis({ data }: DetailedAnalysisProps) {
                 </div>
             </motion.div>
 
-            {/* Code Explorer */}
-            {data.fileAnalysis.length > 0 && (
-                <CodeExplorer files={data.fileAnalysis} />
-            )}
-
             {/* Enhanced Quality Analysis */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -151,12 +181,35 @@ export function DetailedAnalysis({ data }: DetailedAnalysisProps) {
                     ))}
                 </div>
             </motion.div>
+
+            {/* Potential Changes Widget */}
+            {data.improvements && data.improvements.length > 0 && (
+                <PotentialChanges improvements={data.improvements} />
+            )}
+
+            {/* Code Explorer */}
+            <CodeExplorer files={data.fileAnalysis} />
         </div>
     );
 }
 
 function CodeExplorer({ files }: { files: AnalysisResult['fileAnalysis'] }) {
     const [selectedFile, setSelectedFile] = useState<typeof files[0] | null>(files[0]);
+    const [currentExplanation, setCurrentExplanation] = useState<string>('');
+
+    // Regenerate explanation when selected file changes
+    useEffect(() => {
+        if (selectedFile) {
+            // Import the explanation generator
+            import('@/lib/line-by-line-explainer').then(({ generateLineByLineExplanation }) => {
+                const newExplanation = generateLineByLineExplanation({
+                    path: selectedFile.path,
+                    content: selectedFile.content || selectedFile.preview || ''
+                });
+                setCurrentExplanation(newExplanation);
+            });
+        }
+    }, [selectedFile]);
 
     return (
         <motion.div
@@ -183,14 +236,14 @@ function CodeExplorer({ files }: { files: AnalysisResult['fileAnalysis'] }) {
                             key={i}
                             onClick={() => setSelectedFile(file)}
                             className={`w-full text-left p-4 text-sm hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-purple-500/10 transition-all duration-200 flex items-center justify-between group border-b border-white/5 ${selectedFile?.path === file.path
-                                    ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-l-4 border-indigo-400 shadow-lg shadow-indigo-500/10'
-                                    : 'border-l-4 border-transparent hover:border-indigo-500/50'
+                                ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-l-4 border-indigo-400 shadow-lg shadow-indigo-500/10'
+                                : 'border-l-4 border-transparent hover:border-indigo-500/50'
                                 }`}
                         >
                             <span className="truncate font-mono text-gray-300 group-hover:text-indigo-300 transition-colors">{file.path}</span>
                             <span className={`text-xs px-2 py-1 rounded-md font-medium ${selectedFile?.path === file.path
-                                    ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50'
-                                    : 'bg-white/5 text-gray-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300'
+                                ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50'
+                                : 'bg-white/5 text-gray-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300'
                                 }`}>{file.language}</span>
                         </button>
                     ))}
@@ -230,7 +283,7 @@ function CodeExplorer({ files }: { files: AnalysisResult['fileAnalysis'] }) {
                                     </div>
                                     <div className="prose prose-invert prose-sm max-w-none">
                                         <p className="whitespace-pre-wrap text-gray-400 leading-relaxed font-sans">
-                                            {selectedFile.explanation}
+                                            {currentExplanation || selectedFile.explanation || 'Generating explanation...'}
                                         </p>
                                     </div>
                                 </div>

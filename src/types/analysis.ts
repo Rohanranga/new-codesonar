@@ -62,4 +62,16 @@ export interface AnalysisResult {
         recommendation: string;
         priority: string;
     }>;
+    improvements: Array<{
+        category: 'complexity' | 'performance' | 'duplication' | 'security' | 'best-practice' | 'refactoring';
+        priority: 'high' | 'medium' | 'low';
+        title: string;
+        description: string;
+        file: string;
+        line?: number;
+        currentCode?: string;
+        suggestedCode?: string;
+        impact: string;
+        effort: 'low' | 'medium' | 'high';
+    }>;
 }
