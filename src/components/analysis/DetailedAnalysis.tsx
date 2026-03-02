@@ -121,20 +121,20 @@ export function DetailedAnalysis({ data }: DetailedAnalysisProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="glass-card p-6 rounded-xl"
+                className="glass-card p-4 sm:p-6 rounded-xl"
             >
-                <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
-                    <Package className="w-5 h-5 text-primary" />
+                <h3 className="text-lg sm:text-xl font-semibold flex items-center gap-2 mb-4">
+                    <Package className="w-5 h-5 text-primary flex-shrink-0" />
                     Tech Stack & Languages ({data.packages.total})
                 </h3>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left">
+                <div className="overflow-x-auto -mx-4 sm:mx-0">
+                    <table className="w-full text-sm text-left min-w-[360px]">
                         <thead className="text-xs text-muted-foreground uppercase bg-white/5">
                             <tr>
-                                <th className="px-4 py-3 rounded-tl-lg">Technology</th>
-                                <th className="px-4 py-3">Version/Type</th>
-                                <th className="px-4 py-3 rounded-tr-lg">Latest</th>
+                                <th className="px-3 sm:px-4 py-3 rounded-tl-lg">Technology</th>
+                                <th className="px-3 sm:px-4 py-3">Version/Type</th>
+                                <th className="px-3 sm:px-4 py-3 rounded-tr-lg">Latest</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -142,15 +142,15 @@ export function DetailedAnalysis({ data }: DetailedAnalysisProps) {
                                 .sort((a, b) => (a.status === 'outdated' ? -1 : 1))
                                 .map((pkg, i) => (
                                     <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                        <td className="px-4 py-3 font-mono text-primary flex items-center gap-2">
+                                        <td className="px-3 sm:px-4 py-3 font-mono text-primary text-xs sm:text-sm">
                                             {pkg.name}
                                         </td>
-                                        <td className="px-4 py-3">
+                                        <td className="px-3 sm:px-4 py-3">
                                             <span className="px-2 py-1 bg-white/5 rounded text-xs opacity-70">
                                                 {pkg.current}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 opacity-50 text-xs">
+                                        <td className="px-3 sm:px-4 py-3 opacity-50 text-xs">
                                             {pkg.latest !== '-' ? pkg.latest : ''}
                                         </td>
                                     </tr>
@@ -160,18 +160,18 @@ export function DetailedAnalysis({ data }: DetailedAnalysisProps) {
                 </div>
             </motion.div>
 
-            {/* Enhanced Quality Analysis */}
+            {/* Quality Recommendations */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="glass-card p-6 rounded-xl"
+                className="glass-card p-4 sm:p-6 rounded-xl"
             >
-                <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
+                <h3 className="text-lg sm:text-xl font-semibold flex items-center gap-2 mb-4">
+                    <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
                     Quality Recommendations ({data.qualityAnalysis.length})
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     {data.qualityAnalysis.map((item, i) => (
                         <div
                             key={i}
@@ -236,32 +236,33 @@ function CodeExplorer({ files }: { files: AnalysisResult['fileAnalysis'] }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="glass-card flex flex-col h-[700px] overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500/5 to-transparent border border-indigo-500/20"
+            className="glass-card flex flex-col rounded-xl bg-gradient-to-br from-indigo-500/5 to-transparent border border-indigo-500/20"
         >
-            <div className="p-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-indigo-500/10 to-purple-500/10">
+            <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex-wrap gap-2">
                 <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-600/10 shadow-lg">
-                        <FileCode className="w-6 h-6 text-indigo-400" />
+                    <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-600/10 shadow-lg">
+                        <FileCode className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400" />
                     </div>
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Code Explorer</h3>
+                    <h3 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Code Explorer</h3>
                 </div>
-                <span className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-sm font-semibold text-indigo-300 border border-indigo-500/30">{files.length} files analyzed</span>
+                <span className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-xs sm:text-sm font-semibold text-indigo-300 border border-indigo-500/30">{files.length} files analyzed</span>
             </div>
 
-            <div className="flex flex-1 overflow-hidden">
+            {/* Mobile: stacked layout; Desktop: side-by-side */}
+            <div className="flex flex-col lg:flex-row" style={{ minHeight: '500px', maxHeight: '800px' }}>
                 {/* File List */}
-                <div className="w-1/3 border-r border-white/10 overflow-y-auto bg-gradient-to-b from-black/40 to-black/20">
+                <div className="w-full lg:w-1/3 border-b lg:border-b-0 lg:border-r border-white/10 overflow-y-auto bg-gradient-to-b from-black/40 to-black/20 max-h-48 lg:max-h-none">
                     {files.map((file, i) => (
                         <button
                             key={i}
                             onClick={() => setSelectedFile(file)}
-                            className={`w-full text-left p-4 text-sm hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-purple-500/10 transition-all duration-200 flex items-center justify-between group border-b border-white/5 ${selectedFile?.path === file.path
+                            className={`w-full text-left p-3 sm:p-4 text-xs sm:text-sm hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-purple-500/10 transition-all duration-200 flex items-center justify-between group border-b border-white/5 ${selectedFile?.path === file.path
                                 ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-l-4 border-indigo-400 shadow-lg shadow-indigo-500/10'
                                 : 'border-l-4 border-transparent hover:border-indigo-500/50'
                                 }`}
                         >
-                            <span className="truncate font-mono text-gray-300 group-hover:text-indigo-300 transition-colors">{file.path}</span>
-                            <span className={`text-xs px-2 py-1 rounded-md font-medium ${selectedFile?.path === file.path
+                            <span className="truncate font-mono text-gray-300 group-hover:text-indigo-300 transition-colors mr-2">{file.path}</span>
+                            <span className={`text-xs px-1.5 py-0.5 rounded-md font-medium flex-shrink-0 ${selectedFile?.path === file.path
                                 ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50'
                                 : 'bg-white/5 text-gray-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300'
                                 }`}>{file.language}</span>
@@ -270,60 +271,59 @@ function CodeExplorer({ files }: { files: AnalysisResult['fileAnalysis'] }) {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 flex flex-col overflow-hidden bg-[#0d0d0d]">
+                <div className="flex-1 flex flex-col overflow-hidden bg-[#0d0d0d] min-h-0">
                     {selectedFile ? (
                         <>
-                            <div className="p-3 border-b border-white/10 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex justify-between items-center px-5">
-                                <span className="text-sm font-mono text-indigo-300 font-semibold">{selectedFile.path}</span>
-                                <div className="flex gap-2 text-xs">
-                                    <span className="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 border border-blue-500/30 font-medium">{selectedFile.lines} lines</span>
-                                    <span className="px-3 py-1 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30 font-medium">{(selectedFile.size / 1024).toFixed(1)} KB</span>
+                            <div className="p-3 sm:p-4 border-b border-white/10 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex justify-between items-center flex-wrap gap-2">
+                                <span className="text-xs sm:text-sm font-mono text-indigo-300 font-semibold truncate max-w-[60%]">{selectedFile.path}</span>
+                                <div className="flex gap-1.5 sm:gap-2 text-xs flex-shrink-0">
+                                    <span className="px-2 py-1 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 border border-blue-500/30 font-medium">{selectedFile.lines} lines</span>
+                                    <span className="px-2 py-1 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30 font-medium">{(selectedFile.size / 1024).toFixed(1)} KB</span>
                                 </div>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-white/10 grid grid-rows-2 h-full">
+                            <div className="flex-1 overflow-y-auto grid grid-rows-2" style={{ minHeight: 0 }}>
                                 {/* Code View */}
-                                <div className="row-span-1 border-b border-white/10 overflow-auto bg-[#0a0a0a] relative group">
-                                    <div className="absolute top-3 right-3 px-3 py-1.5 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-lg text-xs font-semibold text-green-300 z-10 pointer-events-none shadow-lg">
+                                <div className="border-b border-white/10 overflow-auto bg-[#0a0a0a] relative group">
+                                    <div className="absolute top-2 right-2 px-2 py-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-lg text-xs font-semibold text-green-300 z-10 pointer-events-none shadow-lg">
                                         📄 Source Code
                                     </div>
-                                    <pre className="p-6 text-xs font-mono leading-relaxed text-gray-300 tab-4">
+                                    <pre className="p-4 sm:p-6 text-xs font-mono leading-relaxed text-gray-300 tab-4 overflow-x-auto">
                                         <code>{selectedFile.content || selectedFile.preview || "// Content not available"}</code>
                                     </pre>
                                 </div>
 
                                 {/* Explanation View */}
-                                <div className="row-span-1 overflow-auto bg-gradient-to-b from-[#111111] to-[#0a0a0a] p-6">
-                                    <div className="mb-4 flex items-center gap-3">
+                                <div className="overflow-auto bg-gradient-to-b from-[#111111] to-[#0a0a0a] p-4 sm:p-6">
+                                    <div className="mb-3 sm:mb-4 flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20">
                                             <span className="text-lg">🤖</span>
                                         </div>
-                                        <span className="text-sm uppercase tracking-wider font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">AI Explanation</span>
+                                        <span className="text-xs sm:text-sm uppercase tracking-wider font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">AI Explanation</span>
                                         <div className="h-px flex-1 bg-gradient-to-r from-indigo-500/50 to-transparent"></div>
                                     </div>
                                     <div className="prose prose-invert prose-sm max-w-none prose-p:text-gray-400 prose-headings:text-indigo-300 prose-strong:text-white prose-code:text-indigo-200">
-                                        <div className="prose prose-invert prose-sm max-w-none prose-p:text-gray-400 prose-headings:text-indigo-300 prose-strong:text-white prose-code:text-indigo-200">
-                                            <ReactMarkdown
-                                                remarkPlugins={[remarkGfm]}
-                                                components={{
-                                                    code: ({ node, inline, className, children, ...props }: any) => {
-                                                        return (
-                                                            <CodeBlock inline={inline} className={className} {...props}>
-                                                                {children}
-                                                            </CodeBlock>
-                                                        );
-                                                    }
-                                                }}
-                                            >
-                                                {currentExplanation || selectedFile.explanation || 'Generating explanation...'}
-                                            </ReactMarkdown>
-                                        </div>
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                code: ({ className, children, ...props }: any) => {
+                                                    const isInline = !className;
+                                                    return (
+                                                        <CodeBlock inline={isInline} className={className} {...props}>
+                                                            {children}
+                                                        </CodeBlock>
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            {currentExplanation || selectedFile.explanation || 'Generating explanation...'}
+                                        </ReactMarkdown>
                                     </div>
                                 </div>
                             </div>
                         </>
                     ) : (
-                        <div className="flex items-center justify-center h-full text-muted-foreground">
+                        <div className="flex items-center justify-center h-full text-muted-foreground p-8 text-sm">
                             Select a file to view content
                         </div>
                     )}

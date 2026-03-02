@@ -135,7 +135,7 @@ export function ArchitectureView({ diagram }: ArchitectureViewProps) {
 
             <div
                 ref={containerRef}
-                className="w-full overflow-x-auto flex justify-center p-6 bg-black/20 rounded-lg min-h-[200px] items-center"
+                className="w-full overflow-x-auto flex justify-center p-4 sm:p-6 bg-black/20 rounded-lg min-h-[160px] sm:min-h-[200px] items-center"
             >
                 <div className="text-gray-400 text-sm">Loading diagram...</div>
             </div>

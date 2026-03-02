@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchRepoContent } from "@/lib/github";
 import { analyzeCodebase } from "@/lib/ai";
 
+export const maxDuration = 300; // 5 minutes
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
     try {
         const { type, value } = await req.json();

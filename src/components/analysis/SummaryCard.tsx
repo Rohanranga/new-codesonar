@@ -73,12 +73,12 @@ export function SummaryCard({ data }: SummaryCardProps) {
                 transition={{ delay: 0.2 }}
                 className="glass-card p-6 rounded-xl md:col-span-2 bg-gradient-to-br from-orange-500/5 to-transparent border border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10"
             >
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-600/10 shadow-lg">
-                        <Zap className="w-6 h-6 text-orange-400" />
+                <div className="flex items-center gap-3 mb-4 flex-wrap">
+                    <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-600/10 shadow-lg flex-shrink-0">
+                        <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
                     </div>
-                    <h3 className="text-xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">Complexity Analysis</h3>
-                    <span className={`ml-auto px-4 py-2 rounded-full text-sm font-bold shadow-lg ${data.complexity.score > 7
+                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">Complexity Analysis</h3>
+                    <span className={`ml-auto px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-lg flex-shrink-0 ${data.complexity.score > 7
                             ? 'bg-gradient-to-r from-red-500/30 to-rose-500/30 text-red-300 border border-red-500/50'
                             : data.complexity.score > 4
                                 ? 'bg-gradient-to-r from-yellow-500/30 to-amber-500/30 text-yellow-300 border border-yellow-500/50'
@@ -90,18 +90,18 @@ export function SummaryCard({ data }: SummaryCardProps) {
                 <p className="text-gray-300 text-sm leading-relaxed">
                     {data.complexity.analysis}
                 </p>
-                <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-white/10">
-                    <div className="text-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
+                    <div className="text-center p-2 sm:p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                         <p className="text-xs font-semibold text-blue-400 mb-1">Total Files</p>
-                        <p className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{data.complexity.metrics.totalFiles}</p>
+                        <p className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{data.complexity.metrics.totalFiles}</p>
                     </div>
-                    <div className="text-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                    <div className="text-center p-2 sm:p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                         <p className="text-xs font-semibold text-purple-400 mb-1">Total Lines</p>
-                        <p className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{data.complexity.metrics.totalLines.toLocaleString()}</p>
+                        <p className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{data.complexity.metrics.totalLines.toLocaleString()}</p>
                     </div>
-                    <div className="text-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                        <p className="text-xs font-semibold text-orange-400 mb-1">Avg Lines/File</p>
-                        <p className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">{data.complexity.metrics.avgLinesPerFile}</p>
+                    <div className="text-center p-2 sm:p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                        <p className="text-xs font-semibold text-orange-400 mb-1">Avg/File</p>
+                        <p className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">{data.complexity.metrics.avgLinesPerFile}</p>
                     </div>
                 </div>
             </motion.div>

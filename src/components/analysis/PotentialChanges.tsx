@@ -23,7 +23,7 @@ interface PotentialChangesProps {
     improvements: Improvement[];
 }
 
-const categoryIcons = {
+const categoryIcons: Record<string, any> = {
     complexity: Code,
     performance: Zap,
     duplication: RefreshCw,
@@ -32,7 +32,7 @@ const categoryIcons = {
     refactoring: Code
 };
 
-const categoryColors = {
+const categoryColors: Record<string, string> = {
     complexity: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
     performance: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
     duplication: 'text-orange-400 bg-orange-500/10 border-orange-500/20',
@@ -41,13 +41,13 @@ const categoryColors = {
     refactoring: 'text-green-400 bg-green-500/10 border-green-500/20'
 };
 
-const priorityColors = {
+const priorityColors: Record<string, string> = {
     high: 'bg-red-500/20 text-red-300 border-red-500/30',
     medium: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
     low: 'bg-blue-500/20 text-blue-300 border-blue-500/30'
 };
 
-const effortColors = {
+const effortColors: Record<string, string> = {
     low: 'text-green-400',
     medium: 'text-yellow-400',
     high: 'text-red-400'
@@ -108,21 +108,24 @@ export function PotentialChanges({ improvements }: PotentialChangesProps) {
             </div>
 
             {/* Improvements List */}
-            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+            <div className="space-y-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto pr-1 sm:pr-2">
                 {filteredImprovements.length === 0 ? (
                     <div className="text-center py-8 text-gray-400">
                         <p>No improvements found in this category</p>
                     </div>
                 ) : (
                     filteredImprovements.map((improvement, index) => {
-                        const Icon = categoryIcons[improvement.category];
+                        const cat = improvement.category in categoryIcons ? improvement.category : 'best-practice';
+                        const Icon = categoryIcons[cat];
+                        const pri = improvement.priority in priorityColors ? improvement.priority : 'medium';
+                        const eff = improvement.effort in effortColors ? improvement.effort : 'medium';
                         return (
                             <motion.div
                                 key={index}
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.05 }}
-                                className={`p-4 rounded-lg border ${categoryColors[improvement.category]}`}
+                                className={`p-4 rounded-lg border ${categoryColors[cat] || categoryColors['best-practice']}`}
                             >
                                 {/* Header */}
                                 <div className="flex items-start justify-between mb-3">
@@ -142,10 +145,10 @@ export function PotentialChanges({ improvements }: PotentialChangesProps) {
                                         </div>
                                     </div>
                                     <div className="flex flex-col gap-2 items-end">
-                                        <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase border ${priorityColors[improvement.priority]}`}>
+                                        <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase border ${priorityColors[pri]}`}>
                                             {improvement.priority}
                                         </span>
-                                        <span className={`text-xs ${effortColors[improvement.effort]}`}>
+                                        <span className={`text-xs ${effortColors[eff]}`}>
                                             Effort: {improvement.effort}
                                         </span>
                                     </div>

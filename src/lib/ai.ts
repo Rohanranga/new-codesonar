@@ -10,269 +10,343 @@ const execAsync = promisify(exec);
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY || "");
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const model = genAI.getGenerativeModel({
+    model: "gemini-flash-lite-latest",
+    generationConfig: {
+        temperature: 0.4,
+        topP: 0.9,
+        maxOutputTokens: 8192,
+    }
+});
+
+// Helper: sequential delay to avoid rate-limit bursts
+const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+// Helper: retry with backoff on 429
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, baseMs = 8000): Promise<T> {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn();
+        } catch (e: any) {
+            const is429 = e?.message?.includes('429') || e?.status === 429;
+            if (is429 && i < retries - 1) {
+                const wait = baseMs * (i + 1);
+                console.log(`Rate limited. Retrying in ${wait / 1000}s...`);
+                await delay(wait);
+            } else {
+                throw e;
+            }
+        }
+    }
+    throw new Error('Max retries exceeded');
+}
 
 // --- Specialized Prompts (Mini-Agents) ---
 
 const prompts = {
     identifyTechStack: (context: string) => `
-    You are an expert software architect. Analyze the following repository content and identify the tech stack used. Be as comprehensive as possible.
-    
-    Repository Content: ${context.slice(0, 30000)}
-    
-    Return ONLY a JSON object: { "languages": [], "frameworks": [], "tools": [], "packageManager": "string" }
-  `,
+You are an expert software architect. Carefully analyze the full repository content and identify EVERY technology, language, framework, library, and tool used.
+
+Be thorough — look at:
+- File extensions to identify languages
+- import/require statements for libraries
+- config files (package.json, requirements.txt, etc.)
+- Build tools, CI/CD configs, Docker files
+
+Repository Content:
+${context.slice(0, 50000)}
+
+Return ONLY a valid JSON object with NO markdown fences:
+{ "languages": ["string"], "frameworks": ["string"], "tools": ["string"], "packageManager": "string" }
+`,
 
     assessComplexity: (context: string) => `
-    You are an expert software engineer tasked with assessing the complexity of code repositories. Based on the provided repository content, determine the overall complexity level (Low, Medium, or High). Provide a brief justification for your assessment.
-    
-    Repository Content: ${context.slice(0, 30000)}
-    
-    Return ONLY a JSON object: { "score": number (1-10), "level": "Low"|"Medium"|"High", "justification": "string", "metrics": { "totalFiles": number, "totalLines": number } }
-  `,
+You are a senior software engineer conducting a deep complexity assessment.
+
+Analyze the following for:
+- Cyclomatic complexity indicators (nested conditions, loops)
+- Coupling between modules
+- Code duplication patterns
+- Abstraction levels
+- State management complexity
+- Error handling coverage
+- Test coverage signals
+
+Repository Content:
+${context.slice(0, 50000)}
+
+Return ONLY a valid JSON object with NO markdown fences:
+{ "score": number (1-10), "level": "Low"|"Medium"|"High", "justification": "detailed paragraph explaining why this score", "metrics": { "totalFiles": number, "totalLines": number } }
+`,
 
     suggestImprovements: (context: string) => `
-    You are an expert software engineer. Provide a list of actionable improvement suggestions. For each suggestion, include a clear title, a detailed explanation, the existing code snippet, and a concrete code snippet demonstrating the improved version.
-    
-    Repository Content: ${context.slice(0, 30000)}
-    
-    Return ONLY a JSON object: { "improvements": [{ "title": "string", "explanation": "string", "priority": "high"|"medium"|"low" }] }
-  `,
+You are a principal engineer doing a thorough code review. Find specific, actionable improvements.
+
+For each improvement provide:
+- Exact title of the issue
+- Detailed explanation with WHY it is a problem
+- The category (complexity/performance/security/best-practice/refactoring/duplication)
+- Priority (high/medium/low) based on real impact
+- Effort (low/medium/high) to fix
+- Impact description
+- File path where the issue exists
+- Current code snippet (if applicable)
+- Suggested fixed code snippet
+
+Be specific — reference actual function names, variable names, patterns from the code.
+
+Repository Content:
+${context.slice(0, 50000)}
+
+Return ONLY a valid JSON object with NO markdown fences:
+{ "improvements": [{ "category": "complexity"|"performance"|"duplication"|"security"|"best-practice"|"refactoring", "priority": "high"|"medium"|"low", "title": "string", "description": "string (detailed)", "file": "string", "line": number|null, "currentCode": "string|null", "suggestedCode": "string|null", "impact": "string", "effort": "low"|"medium"|"high" }] }
+`,
 
     detectBugs: (context: string) => `
-    You are an expert code security and quality analyst. Analyze the provided code for BUGS, SECURITY VULNERABILITIES, and LOGIC ERRORS.
-    Focus on issues that regex cannot find, such as:
-    - Infinite loops or recursion
-    - Race conditions
-    - Memory leaks
-    - Security flaws (XSS, SQL Injection, Command Injection)
-    - Logic errors (off-by-one, incorrect boolean logic)
-    - Unhandled edge cases
-    - Performance bottlenecks
-    
-    Repository Content: ${context.slice(0, 40000)}
-    
-    Return ONLY a JSON object: 
-    { 
-        "errors": [{ "file": "string", "line": number, "message": "string", "severity": "critical"|"error"|"warning", "suggestion": "string", "fixCode": "string" }],
-        "warnings": [{ "file": "string", "line": number, "message": "string", "severity": "warning"|"info", "suggestion": "string", "fixCode": "string" }]
-    }
-  `,
+You are an expert security researcher and code quality analyst. Do a thorough pass for:
+
+ERRORS to look for:
+- Security vulnerabilities (XSS, SQL injection, command injection, path traversal, SSRF)
+- Logic bugs (off-by-one, incorrect conditions, wrong operator)
+- Async issues (race conditions, missing awaits, unhandled promise rejections)
+- Null/undefined dereference risks
+- Memory leaks (unclosed resources, event listeners not removed)
+- Infinite loops or unbounded recursion
+
+WARNINGS to look for:
+- Missing error handling in async functions
+- Hardcoded secrets or API keys
+- Deprecated API usage
+- Performance bottlenecks (N+1 queries, large synchronous operations)
+- Missing input validation at boundaries
+- Console statements left in production code
+
+For each issue specify the exact file and approximate line number.
+
+Repository Content:
+${context.slice(0, 60000)}
+
+Return ONLY a valid JSON object with NO markdown fences:
+{
+  "errors": [{ "file": "string", "line": number, "type": "string", "message": "string (specific)", "severity": "critical"|"error", "suggestion": "string (actionable)", "fixCode": "string" }],
+  "warnings": [{ "file": "string", "line": number, "type": "string", "message": "string (specific)", "severity": "warning"|"info", "suggestion": "string (actionable)", "fixCode": "string" }]
+}
+`,
 
     explainCode: (context: string) => `
-    You are an expert software architect. Provide a high-density, concise explanation of the code files.
-    Focus on: What it does, Key logic, and Interactions. Avoid fluff.
-    
-    Repository Content: ${context.slice(0, 40000)}
-    
-    Return ONLY a JSON object: 
-    { "files": [{ "path": "string", "explanation": "string (markdown allowed, max 300 chars)", "keyFeatures": ["string"] }] }
-  `,
+You are an expert software architect writing detailed technical documentation.
+
+For each file in the repository, provide:
+- A thorough explanation of what the file does and WHY it exists
+- Key logic, algorithms, and design patterns used
+- Dependencies and how this file interacts with others
+- Any non-obvious behaviors or gotchas
+- The explanation should be at least 2-3 detailed paragraphs in markdown
+
+Repository Content:
+${context.slice(0, 60000)}
+
+Return ONLY a valid JSON object with NO markdown fences:
+{ "files": [{ "path": "string", "explanation": "string (detailed markdown, min 200 chars)", "keyFeatures": ["string (specific feature, not generic)"] }] }
+`,
 
     generateArchitecture: (context: string) => `
-    You are an expert software architect. Analyze the provided codebase and generate a Mermaid.js flowchart showing the DATA FLOW through the system.
-    
-    CRITICAL RULES:
-    - START WITH "flowchart TD" (not "graph TD")
-    - Show how data moves through the application (User → Frontend → Backend → Services → Database → AI → Results)
-    - Identify actual components from the code (API routes, services, database, external APIs)
-    - Use descriptive node labels that reflect the actual project
-    - Include emojis for visual appeal (👤 User, 🖥️ Frontend, ⚙️ Backend, 📦 Service, 🤖 AI, 💾 Database)
-    - Maximum 20 nodes
-    - Use proper Mermaid syntax: NodeID["Label"] --> NodeID2["Label"]
-    - Add styling classes at the end
-    
-    ANALYZE THE CODE FOR:
-    1. Entry points (pages, routes)
-    2. API endpoints (/api/* files)
-    3. External services (GitHub, OpenAI, databases)
-    4. Data processing (lib/* files)
-    5. State management
-    6. AI/ML components
-    
-    Repository Content: ${context.slice(0, 50000)}
-    
-    Return ONLY the raw Mermaid flowchart code, no markdown fences, no explanations.
-    
-    Example format:
-    flowchart TD
-        User["👤 User"] -->|"Input"| Frontend["🖥️ Frontend"]
-        Frontend -->|"Request"| API["⚙️ API"]
-        API -->|"Fetch"| Service["📦 Service"]
-        Service -->|"Data"| AI["🤖 AI"]
-        AI -->|"Results"| API
-        API -->|"Response"| Frontend
-        Frontend -->|"Display"| User
-  `,
+You are an expert software architect. Analyze this codebase and generate a detailed Mermaid.js flowchart showing the complete DATA FLOW.
+
+CRITICAL RULES:
+- START WITH "flowchart TD" (not "graph TD")
+- Show real components from the actual code (use actual file names and route paths)
+- Trace data from user input → frontend → API routes → services → external APIs → AI → results displayed
+- Include emojis: 👤 User, 🖥️ Frontend, ⚙️ API, 📦 GitHub, 🤖 AI, 📊 Results
+- 15-20 nodes minimum
+- Label every arrow with what data flows through it
+- Add style classes for visual grouping
+
+Repository Content:
+${context.slice(0, 60000)}
+
+Return ONLY raw Mermaid code, no markdown fences, no explanation text.
+`,
 
     generateSummary: (details: any) => `
-    You are an expert in summarizing software projects. Based on the following information, generate a concise project summary.
-    
-    Code Explanation: ${JSON.stringify(details.fileAnalysis).slice(0, 10000)}
-    Tech Stack: ${JSON.stringify(details.techStack)}
-    Complexity Level: ${JSON.stringify(details.complexity)}
-    Potential Improvements: ${JSON.stringify(details.improvements)}
-    
-    Return string (Summary text).
-  `
+You are a technical writer creating a concise but comprehensive project summary.
+
+Write 3-4 paragraphs covering:
+1. What the project does and its main purpose
+2. The technical architecture and key design decisions
+3. Notable features, patterns, or interesting implementations
+4. Overall code quality and areas for improvement
+
+Base your summary on this analysis data:
+File Analysis: ${JSON.stringify(details.fileAnalysis).slice(0, 15000)}
+Tech Stack: ${JSON.stringify(details.techStack)}
+Complexity: ${JSON.stringify(details.complexity)}
+Key Issues Found: ${JSON.stringify(details.improvements?.slice(0, 5))}
+
+Return plain text summary (markdown allowed, no JSON wrapper).
+`
 };
 
 export async function analyzeCodebase(files: { path: string; content: string }[]) {
-    // 1. Prepare comprehensive context from ALL files
-    const context = files
-        .filter(f => !f.path.includes('lock'))
-        .map(f => `File: ${f.path}\n\`\`\`${f.path.split('.').pop() || 'txt'}\n${f.content.slice(0, 3000)}\n\`\`\``)
+    // 1. Prepare comprehensive context — include more content per file
+    const filteredFiles = files.filter(f =>
+        !f.path.includes('lock') &&
+        !f.path.includes('node_modules') &&
+        !f.path.endsWith('.min.js') &&
+        !f.path.endsWith('.map')
+    );
+
+    const context = filteredFiles
+        .map(f => `File: ${f.path}\n\`\`\`${f.path.split('.').pop() || 'txt'}\n${f.content.slice(0, 4000)}\n\`\`\``)
         .join("\n\n");
 
+    console.log(`Analyzing ${filteredFiles.length} files, context: ${context.length} chars`);
+
+    // Helper to parse JSON safely
+    const parse = (res: any, fallback: any) => {
+        try {
+            const txt = res.response.text();
+            let clean = txt.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+            const objMatch = clean.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+            if (objMatch) clean = objMatch[1];
+            clean = clean.replace(/,\s*([}\]])/g, '$1');
+            return JSON.parse(clean);
+        } catch (e) { console.error("Parse Error", e); return fallback; }
+    };
+
     try {
-        // Run AI tasks and npm outdated in parallel
-        const [techStackRes, complexityRes, improvementsRes, explanationRes, architectureRes, packageInfoRes, bugRes] = await Promise.all([
-            model.generateContent(prompts.identifyTechStack(context)),
-            model.generateContent(prompts.assessComplexity(context)),
-            model.generateContent(prompts.suggestImprovements(context)),
-            model.generateContent(prompts.explainCode(context)),
-            model.generateContent(prompts.generateArchitecture(context)),
-            analyzePackageVersionsAsync(files),
-            model.generateContent(prompts.detectBugs(context))
+        // --- PHASE 1: Run independent analyses in two batches to avoid rate limits ---
+        console.log("Phase 1: Tech stack, complexity, bug detection...");
+        const [techStackRes, complexityRes, bugRes] = await Promise.all([
+            withRetry(() => model.generateContent(prompts.identifyTechStack(context))),
+            withRetry(() => model.generateContent(prompts.assessComplexity(context))),
+            withRetry(() => model.generateContent(prompts.detectBugs(context))),
         ]);
 
-        // Helper to parse JSON safely
-        const parse = (res: any, fallback: any) => {
-            try {
-                const txt = res.response.text();
-                const clean = txt.replace(/```json/g, '').replace(/```/g, '');
-                return JSON.parse(clean);
-            } catch (e) { console.error("Parse Error", e); return fallback; }
-        };
+        // Small gap between batches to be gentle on rate limits
+        await delay(3000);
 
+        console.log("Phase 2: Code explanation, improvements, packages...");
+        const [explanationRes, improvementsRes, packageInfoRes] = await Promise.all([
+            withRetry(() => model.generateContent(prompts.explainCode(context))),
+            withRetry(() => model.generateContent(prompts.suggestImprovements(context))),
+            analyzePackageVersionsAsync(files),
+        ]);
+
+        await delay(3000);
+
+        // --- PHASE 2: Architecture and summary depend on earlier results ---
+        console.log("Phase 3: Architecture diagram and final summary...");
         const techStack = parse(techStackRes, { languages: [], frameworks: [], tools: [], packageManager: "Unknown" });
-        const complexity = parse(complexityRes, { score: 5, level: "Medium", justification: "Analysis failed", metrics: { totalFiles: files.length, totalLines: 0 } });
+        const complexity = parse(complexityRes, { score: 5, level: "Medium", justification: "Analysis unavailable", metrics: { totalFiles: files.length, totalLines: 0 } });
         const improvementsData = parse(improvementsRes, { improvements: [] });
         const explanationData = parse(explanationRes, { files: [] });
         const detectedBugs = parse(bugRes, { errors: [], warnings: [] });
 
+        // Build a file explanation map for fast lookup
+        const explanationMap = new Map<string, any>();
+        (explanationData.files || []).forEach((f: any) => explanationMap.set(f.path, f));
 
+        const [architectureResult, summaryRes] = await Promise.all([
+            withRetry(async () => {
+                const { generateArchitectureDiagram } = await import('./simple-architecture');
+                return generateArchitectureDiagram(filteredFiles);
+            }),
+            withRetry(() => model.generateContent(prompts.generateSummary({
+                fileAnalysis: explanationData.files?.slice(0, 20),
+                techStack,
+                complexity,
+                improvements: improvementsData.improvements?.slice(0, 8)
+            }))),
+        ]);
 
-        // 3. Generate Final Summary
-        const summaryRes = await model.generateContent(prompts.generateSummary({
-            fileAnalysis: explanationData.files,
-            techStack,
-            complexity,
-            improvements: improvementsData.improvements
-        }));
         const summary = summaryRes.response.text();
 
         console.log("Analysis Complete.");
 
-        // Deduplicate Quality Analysis
+        // Merge static + AI errors/warnings (deduplicated)
+        const staticAnalysis = analyzeCodeForErrors(filteredFiles);
+        const llmErrors = detectedBugs.errors || [];
+        const llmWarnings = detectedBugs.warnings || [];
+
+        const uniqueErrors = new Map();
+        [...staticAnalysis.errors, ...llmErrors].forEach(e => {
+            const key = `${e.file}:${e.line}:${e.message}`;
+            if (!uniqueErrors.has(key)) uniqueErrors.set(key, e);
+        });
+        const uniqueWarnings = new Map();
+        [...staticAnalysis.warnings, ...llmWarnings].forEach(w => {
+            const key = `${w.file}:${w.line}:${w.message}`;
+            if (!uniqueWarnings.has(key)) uniqueWarnings.set(key, w);
+        });
+
+        // Package info
+        const packageJsonFile = files.find(f => f.path.endsWith('package.json'));
+        let deps = {};
+        let devDeps = {};
+        try {
+            if (packageJsonFile) {
+                const json = JSON.parse(packageJsonFile.content);
+                deps = json.dependencies || {};
+                devDeps = json.devDependencies || {};
+            }
+        } catch (e) { }
+
+        // Quality analysis from improvements
         const uniqueQualityMap = new Map();
-        improvementsData.improvements.forEach((imp: any) => {
+        (improvementsData.improvements || []).forEach((imp: any) => {
             const key = imp.title;
             if (!uniqueQualityMap.has(key)) {
                 uniqueQualityMap.set(key, {
-                    category: "Improvement",
+                    category: imp.category || "Improvement",
                     issue: imp.title,
-                    recommendation: imp.explanation,
+                    recommendation: imp.description || imp.explanation,
                     priority: imp.priority || "medium"
                 });
             }
         });
-        const qualityAnalysis = Array.from(uniqueQualityMap.values());
 
-        // 4. Map to frontend schema
+        // File analysis — use AI explanations where available, fallback to local
+        const fileAnalysis = filteredFiles.map(f => {
+            const aiExplain = explanationMap.get(f.path);
+            return {
+                path: f.path,
+                language: f.path.split('.').pop() || 'Text',
+                lines: f.content.split('\n').length,
+                size: f.content.length,
+                preview: f.content.slice(0, 300),
+                content: f.content,
+                explanation: aiExplain?.explanation || generateLineByLineExplanation(f),
+                purpose: f.path.includes('/api/') ? 'API Route' : f.path.endsWith('.json') ? 'Configuration' : 'Source Code',
+                keyFeatures: aiExplain?.keyFeatures || ['See detailed explanation']
+            };
+        });
+
         return {
-            summary: summary,
-            techStack: techStack,
+            summary,
+            techStack,
             complexity: {
                 score: complexity.score,
                 analysis: complexity.justification,
                 metrics: {
-                    totalFiles: files.length,
-                    totalLines: complexity.metrics?.totalLines || 0,
-                    avgLinesPerFile: Math.round((complexity.metrics?.totalLines || 0) / (files.length || 1))
+                    totalFiles: filteredFiles.length,
+                    totalLines: complexity.metrics?.totalLines || filteredFiles.reduce((a, f) => a + f.content.split('\n').length, 0),
+                    avgLinesPerFile: Math.round((complexity.metrics?.totalLines || 0) / (filteredFiles.length || 1))
                 }
             },
-            architecture: await (async () => {
-                try {
-                    console.log("🎨 Generating detailed architecture diagram...");
-                    const { generateArchitectureDiagram } = await import('./simple-architecture');
-                    const diagram = await generateArchitectureDiagram(files);
-                    return diagram;
-                } catch (err) {
-                    console.error("❌ Architecture generation error:", err);
-                    return `flowchart TD
-    User["👤 User"] -->|"GitHub URL"| WebUI["🖥️ Web Interface"]
-    WebUI -->|"Submit"| API["⚙️ Analysis API"]
-    API -->|"Fetch"| GitHub["📦 GitHub Service"]
-    GitHub -->|"Files"| Processor["🔄 File Processor"]
-    Processor -->|"Context"| AI["🤖 Gemini AI"]
-    AI -->|"Analysis"| Aggregator["📊 Result Aggregator"]
-    Aggregator -->|"JSON"| API
-    API -->|"Results"| WebUI
-    WebUI -->|"Display"| User`;
-                }
-            })(),
-            ...(() => {
-                const staticAnalysis = analyzeCodeForErrors(files);
-                const llmErrors = detectedBugs.errors || [];
-                const llmWarnings = detectedBugs.warnings || [];
-
-                // Deduplicate and Merge
-                const uniqueErrors = new Map();
-                [...staticAnalysis.errors, ...llmErrors].forEach(e => {
-                    const key = `${e.file}:${e.line}:${e.message}`;
-                    if (!uniqueErrors.has(key)) uniqueErrors.set(key, e);
-                });
-
-                const uniqueWarnings = new Map();
-                [...staticAnalysis.warnings, ...llmWarnings].forEach(w => {
-                    const key = `${w.file}:${w.line}:${w.message}`;
-                    if (!uniqueWarnings.has(key)) uniqueWarnings.set(key, w);
-                });
-
-                return {
-                    errors: Array.from(uniqueErrors.values()),
-                    warnings: Array.from(uniqueWarnings.values())
-                };
-            })(),
-            packages: (() => {
-                const packageJsonFile = files.find(f => f.path.endsWith('package.json'));
-                let deps = {};
-                let devDeps = {};
-                try {
-                    if (packageJsonFile) {
-                        const json = JSON.parse(packageJsonFile.content);
-                        deps = json.dependencies || {};
-                        devDeps = json.devDependencies || {};
-                    }
-                } catch (e) { }
-
-                // Use the async result
-                const outdated = packageInfoRes.filter(p => p.status === 'outdated');
-                return {
-                    total: packageInfoRes.length,
-                    all: packageInfoRes,
-                    outdated: outdated,
-                    dependencies: deps,
-                    devDependencies: devDeps
-                };
-            })(),
-            fileAnalysis: files.map((f: any) => {
-                const originalFile = files.find(file => file.path === f.path) || files.find(file => file.path.endsWith(f.path));
-                return {
-                    path: f.path,
-                    language: f.path?.split('.').pop() || 'Text',
-                    lines: originalFile?.content.split('\n').length || 0,
-                    size: originalFile?.content.length || 0,
-                    preview: originalFile?.content.slice(0, 300) || "",
-                    content: originalFile?.content || "// Content not found",
-                    explanation: originalFile ? generateLineByLineExplanation(originalFile) : "No detailed explanation available.",
-                    purpose: f.path?.includes('/api/') ? 'API Route' : f.path?.endsWith('.json') ? 'Configuration' : 'Source Code',
-                    keyFeatures: ['See detailed explanation']
-                };
-            }),
-            qualityAnalysis: qualityAnalysis,
-            improvements: analyzeForImprovements(files)
+            architecture: architectureResult,
+            errors: Array.from(uniqueErrors.values()),
+            warnings: Array.from(uniqueWarnings.values()),
+            packages: {
+                total: packageInfoRes.length,
+                all: packageInfoRes,
+                outdated: packageInfoRes.filter((p: any) => p.status === 'outdated'),
+                dependencies: deps,
+                devDependencies: devDeps
+            },
+            fileAnalysis,
+            qualityAnalysis: Array.from(uniqueQualityMap.values()),
+            improvements: analyzeForImprovements(filteredFiles)
         };
 
     } catch (error) {

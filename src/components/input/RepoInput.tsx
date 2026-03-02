@@ -23,10 +23,16 @@ export function RepoInput({ onAnalyze, isLoading }: RepoInputProps) {
 
         const steps = [
             "Fetching Repository...",
+            "Reading source files...",
             "Identifying Tech Stack...",
-            "Scanning for Errors...",
+            "Detecting languages & frameworks...",
+            "Scanning for Bugs & Errors...",
+            "Running security analysis...",
             "Generating Architecture Diagram...",
+            "Mapping data flow...",
+            "Analyzing Code Quality...",
             "Writing Code Explanations...",
+            "Calculating complexity scores...",
             "Finalizing Report..."
         ];
 
@@ -36,7 +42,7 @@ export function RepoInput({ onAnalyze, isLoading }: RepoInputProps) {
         const interval = setInterval(() => {
             i = (i + 1) % steps.length;
             setLoadingText(steps[i]);
-        }, 12000); // Cycle every 12s
+        }, 6000); // Cycle every 6s for more activity
 
         return () => clearInterval(interval);
     }, [isLoading]);
@@ -49,30 +55,30 @@ export function RepoInput({ onAnalyze, isLoading }: RepoInputProps) {
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto">
-            <div className="flex items-center justify-center gap-4 mb-8">
+        <div className="w-full">
+            <div className="flex items-center gap-2 sm:gap-4 mb-5">
                 <button
                     onClick={() => setActiveTab("url")}
                     className={cn(
-                        "flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all",
+                        "flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all",
                         activeTab === "url"
                             ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
                             : "bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
                     )}
                 >
-                    <Github className="w-4 h-4" />
+                    <Github className="w-4 h-4 flex-shrink-0" />
                     GitHub URL
                 </button>
                 <button
                     onClick={() => setActiveTab("upload")}
                     className={cn(
-                        "flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all",
+                        "flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all",
                         activeTab === "upload"
                             ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
                             : "bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
                     )}
                 >
-                    <Upload className="w-4 h-4" />
+                    <Upload className="w-4 h-4 flex-shrink-0" />
                     Upload File
                 </button>
             </div>
@@ -81,27 +87,30 @@ export function RepoInput({ onAnalyze, isLoading }: RepoInputProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="glass-card p-2 rounded-2xl"
+                className="glass-card p-1.5 sm:p-2 rounded-2xl"
             >
                 {activeTab === "url" ? (
-                    <form onSubmit={handleSubmit} className="flex items-center gap-2">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <form onSubmit={handleSubmit} className="flex items-center gap-1.5 sm:gap-2">
+                        <div className="relative flex-1 min-w-0">
+                            <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                             <input
                                 type="text"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
-                                placeholder="https://github.com/username/repository"
-                                className="w-full bg-transparent border-none focus:ring-0 pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/50"
+                                placeholder="https://github.com/username/repo"
+                                className="w-full bg-transparent border-none focus:ring-0 pl-9 sm:pl-12 pr-2 py-3 sm:py-4 text-sm text-foreground placeholder:text-muted-foreground/50"
                                 disabled={isLoading}
                             />
                         </div>
                         <button
                             type="submit"
                             disabled={isLoading || !url}
-                            className="px-8 py-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-shrink-0 px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-medium transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                         >
-                            {isLoading ? loadingText : "Analyze"}
+                            {isLoading ? (
+                                <span className="hidden sm:inline">{loadingText}</span>
+                            ) : "Analyze"}
+                            {isLoading && <span className="sm:hidden">...</span>}
                         </button>
                     </form>
                 ) : (

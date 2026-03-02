@@ -133,9 +133,10 @@ export function ChatInterface({ context }: ChatInterfaceProps) {
                                             <ReactMarkdown
                                                 remarkPlugins={[remarkGfm]}
                                                 components={{
-                                                    code: ({ node, inline, className, children, ...props }: any) => {
+                                                    code: ({ className, children, ...props }: any) => {
+                                                        const isInline = !className;
                                                         return (
-                                                            <CodeBlock inline={inline} className={className} {...props}>
+                                                            <CodeBlock inline={isInline} className={className} {...props}>
                                                                 {children}
                                                             </CodeBlock>
                                                         );
