@@ -114,12 +114,93 @@ Return only Mermaid code.`;
     }
 }
 
-// Synchronous fallback for backward compatibility
-export function generateSimpleArchitectureDiagram(files: Array<{ path: string; content: string }>): string {
-    console.log("⚠️ Using synchronous fallback - async generation should be used instead");
-    return `flowchart TD
-    User["👤 User"] -->|"Interacts"| App["🖥️ Application"]
-    App -->|"Processing"| Backend["⚙️ Backend"]
-    Backend -->|"Results"| App
-    App -->|"Display"| User`;
+// Synchronous fallback that dynamically generates based on file list
+export function generateSimpleArchitectureDiagram(files: Array<{ path: string }>): string {
+    console.log("⚠️ Generative dynamic fallback architecture");
+
+    const components = files.filter(f => f.path.includes('/components/')).slice(0, 5);
+    const pages = files.filter(f => f.path.includes('page.tsx') || f.path.includes('page.js'));
+    const apiRoutes = files.filter(f => f.path.includes('/api/') || f.path.includes('route.ts'));
+    const libs = files.filter(f => f.path.includes('/lib/') || f.path.includes('/utils/') || f.path.includes('/services/')).slice(0, 5);
+    const styles = files.filter(f => f.path.endsWith('.css'));
+
+    let diagram = `flowchart TD\n`;
+    diagram += `    User["👤 User"]\n`;
+
+    // 1. Pages Layer
+    if (pages.length > 0) {
+        diagram += `    subgraph UI ["🖥️ User Interface"]\n`;
+        pages.forEach((p, i) => {
+            const name = p.path.split('/').slice(-2, -1)[0] || 'Home';
+            const node = `Page${i}`;
+            diagram += `        ${node}["📄 ${name}"]\n`;
+            if (i === 0) diagram += `        User --> ${node}\n`;
+        });
+        diagram += `    end\n`;
+    } else {
+        diagram += `    User --> App["🖥️ Application"]\n`;
+    }
+
+    // 2. Components Layer
+    if (components.length > 0) {
+        diagram += `    subgraph Components ["🧩 Components"]\n`;
+        components.forEach((c, i) => {
+            const name = c.path.split('/').pop()?.split('.')[0] || 'Comp';
+            const node = `Comp${i}`;
+            diagram += `        ${node}["🧱 ${name}"]\n`;
+            // Link Pages to Components (Approximation)
+            diagram += `        Page0 -.-> ${node}\n`;
+        });
+        diagram += `    end\n`;
+    }
+
+    // 3. API/Backend Layer
+    if (apiRoutes.length > 0) {
+        diagram += `    subgraph API ["⚙️ API Layer"]\n`;
+        apiRoutes.forEach((r, i) => {
+            const name = r.path.includes('/api/')
+                ? r.path.split('/api/')[1].split('/')[0]
+                : 'Route';
+            const node = `API${i}`;
+            diagram += `        ${node}["🔌 /api/${name}"]\n`;
+            diagram += `        Page0 --> ${node}\n`;
+        });
+        diagram += `    end\n`;
+    }
+
+    // 4. Lib/Service Layer
+    if (libs.length > 0) {
+        diagram += `    subgraph Lib ["📚 Core Logic"]\n`;
+        libs.forEach((l, i) => {
+            const name = l.path.split('/').pop()?.split('.')[0] || 'Lib';
+            const node = `Lib${i}`;
+            diagram += `        ${node}["🛠️ ${name}"]\n`;
+            // Connect API to Libs
+            if (apiRoutes.length > 0) diagram += `        API0 --> ${node}\n`;
+            // Connect UI to Libs if no API
+            else if (pages.length > 0) diagram += `        Page0 --> ${node}\n`;
+        });
+        diagram += `    end\n`;
+    }
+
+    // 5. Stylings
+    if (styles.length > 0) {
+        diagram += `    subgraph Styles ["🎨 Styles"]\n`;
+        styles.forEach((s, i) => {
+            const name = s.path.split('/').pop();
+            diagram += `        Style${i}["💅 ${name}"]\n`;
+        });
+        diagram += `    end\n`;
+    }
+
+    // Fallback if no structure detected
+    if (pages.length === 0 && components.length === 0 && apiRoutes.length === 0) {
+        diagram += `    User --> Code["📂 Source Code"]\n`;
+        diagram += `    Code --> Logic["⚙️ Logic"]\n`;
+    }
+
+    // Styling
+    diagram += `    style User fill:#333,stroke:#fff,stroke-width:2px,color:#fff\n`;
+
+    return diagram;
 }

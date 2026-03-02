@@ -74,4 +74,5 @@ export interface AnalysisResult {
         impact: string;
         effort: 'low' | 'medium' | 'high';
     }>;
+    isFallback?: boolean;
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
+import { SpotlightEffect } from "@/components/ui/SpotlightEffect";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +20,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={inter.className}>
         <Header />
+        <SpotlightEffect />
         <main className="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
           {children}
         </main>

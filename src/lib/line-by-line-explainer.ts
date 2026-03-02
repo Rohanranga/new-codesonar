@@ -26,6 +26,15 @@ export function generateLineByLineExplanation(file: { path: string; content: str
     } else if (isMarkdown) {
         explanation += `Documentation File\n`;
         explanation += `**Purpose:** Contains documentation, instructions, or explanations in Markdown format\n\n`;
+    } else if (file.path.includes('page.tsx')) {
+        explanation += `Next.js Page Route\n`;
+        explanation += `**Purpose:** Defines a unique public route (URL) in the application. Everything exported here is accessible via the browser.\n\n`;
+    } else if (file.path.includes('layout.tsx')) {
+        explanation += `Next.js Layout\n`;
+        explanation += `**Purpose:** Wraps all pages in this directory and below. Used for persistent UI like Headers, Sidebars, and Fonts.\n\n`;
+    } else if (file.path.includes('route.ts')) {
+        explanation += `API Route Handler\n`;
+        explanation += `**Purpose:** Server-side logic (GET, POST requests). Acts like a backend API endpoint.\n\n`;
     } else if (isReact) {
         explanation += `React Component\n`;
         explanation += `**Purpose:** A reusable UI component that renders part of the user interface\n\n`;
@@ -102,241 +111,138 @@ export function generateLineByLineExplanation(file: { path: string; content: str
         return explanation;
     }
 
-    // For code files - DETAILED ANALYSIS
-    explanation += `## 🔍 Detailed Code Analysis\n\n`;
-
-    // Analyze imports
+    // --- 🔍 Analysis Phase ---
     const imports = lines.filter(l => l.trim().startsWith('import '));
-    if (imports.length > 0) {
-        explanation += `### 📦 Imports (${imports.length} total)\n\n`;
-        explanation += `This file imports ${imports.length} external dependencies:\n\n`;
-
-        imports.forEach((imp, index) => {
-            const match = imp.match(/import\s+(.+?)\s+from\s+['"](.+?)['"]/);
-            if (match) {
-                const [, imports, source] = match;
-                explanation += `**${index + 1}. Import from \`${source}\`**\n`;
-                explanation += `   - **What's imported:** \`${imports.trim()}\`\n`;
-
-                if (source === 'react') {
-                    explanation += `   - **Purpose:** Core React library for building user interfaces\n`;
-                    explanation += `   - **Why needed:** Provides essential React functionality\n`;
-                } else if (source.startsWith('./') || source.startsWith('../')) {
-                    explanation += `   - **Purpose:** Local file from this project\n`;
-                    explanation += `   - **Type:** Internal module/component\n`;
-                } else if (source.startsWith('@/')) {
-                    explanation += `   - **Purpose:** Project file using path alias\n`;
-                    explanation += `   - **Type:** Internal module (@ is a shortcut to src/)\n`;
-                } else {
-                    explanation += `   - **Purpose:** External npm package\n`;
-                    explanation += `   - **Type:** Third-party library\n`;
-                }
-                explanation += `\n`;
-            }
-        });
-    }
-
-    // Analyze functions
-    const functionLines = lines.filter((l, i) => {
+    const functionLines = lines.filter(l => {
         const t = l.trim();
         return t.startsWith('function ') || t.startsWith('export function ') ||
             t.startsWith('async function ') || (t.startsWith('const ') && t.includes('= (')) ||
             (t.startsWith('export const ') && t.includes('= ('));
     });
-
-    if (functionLines.length > 0) {
-        explanation += `### ⚙️ Functions (${functionLines.length} total)\n\n`;
-        explanation += `This file defines ${functionLines.length} function(s):\n\n`;
-
-        functionLines.forEach((line, index) => {
-            const funcMatch = line.match(/(?:export\s+)?(?:async\s+)?(?:function|const)\s+(\w+)/);
-            if (funcMatch) {
-                const funcName = funcMatch[1];
-                explanation += `**${index + 1}. \`${funcName}()\`**\n`;
-
-                if (line.includes('async')) {
-                    explanation += `   - **Type:** Async function (handles asynchronous operations)\n`;
-                    explanation += `   - **Behavior:** Can use \`await\` to wait for promises\n`;
-                    explanation += `   - **Use case:** API calls, file operations, delays\n`;
-                } else if (line.includes('export')) {
-                    explanation += `   - **Type:** Exported function\n`;
-                    explanation += `   - **Visibility:** Can be imported and used in other files\n`;
-                    explanation += `   - **Purpose:** Shared functionality\n`;
-                } else {
-                    explanation += `   - **Type:** Regular function\n`;
-                    explanation += `   - **Visibility:** Private to this file\n`;
-                    explanation += `   - **Purpose:** Internal helper function\n`;
-                }
-
-                if (line.includes('=> {')) {
-                    explanation += `   - **Syntax:** Arrow function (modern ES6 syntax)\n`;
-                }
-
-                explanation += `\n`;
-            }
-        });
-    }
-
-    // Analyze React hooks
-    if (isReact) {
-        explanation += `### ⚛️ React Features\n\n`;
-
-        const hasUseState = file.content.includes('useState');
-        const hasUseEffect = file.content.includes('useEffect');
-        const hasUseContext = file.content.includes('useContext');
-        const hasUseRef = file.content.includes('useRef');
-        const hasUseMemo = file.content.includes('useMemo');
-        const hasUseCallback = file.content.includes('useCallback');
-
-        if (hasUseState) {
-            explanation += `**useState Hook**\n`;
-            explanation += `- **Purpose:** Manages component state (data that can change)\n`;
-            explanation += `- **How it works:** Returns [currentValue, setterFunction]\n`;
-            explanation += `- **Example:** \`const [count, setCount] = useState(0)\`\n`;
-            explanation += `- **When to use:** When you need data that triggers re-renders\n\n`;
-        }
-
-        if (hasUseEffect) {
-            explanation += `**useEffect Hook**\n`;
-            explanation += `- **Purpose:** Runs code when component mounts/updates\n`;
-            explanation += `- **How it works:** Executes side effects (API calls, subscriptions)\n`;
-            explanation += `- **Timing:** After render completes\n`;
-            explanation += `- **When to use:** Data fetching, subscriptions, manual DOM updates\n\n`;
-        }
-
-        if (hasUseContext) {
-            explanation += `**useContext Hook**\n`;
-            explanation += `- **Purpose:** Accesses global/shared state\n`;
-            explanation += `- **How it works:** Reads values from React Context\n`;
-            explanation += `- **Benefit:** Avoids prop drilling\n\n`;
-        }
-
-        if (hasUseRef) {
-            explanation += `**useRef Hook**\n`;
-            explanation += `- **Purpose:** Creates a mutable reference that persists\n`;
-            explanation += `- **Common uses:** DOM element references, storing values without re-render\n\n`;
-        }
-
-        if (hasUseMemo) {
-            explanation += `**useMemo Hook**\n`;
-            explanation += `- **Purpose:** Memoizes expensive calculations\n`;
-            explanation += `- **Benefit:** Performance optimization\n\n`;
-        }
-
-        if (hasUseCallback) {
-            explanation += `**useCallback Hook**\n`;
-            explanation += `- **Purpose:** Memoizes function references\n`;
-            explanation += `- **Benefit:** Prevents unnecessary re-renders\n\n`;
-        }
-    }
-
-    // Analyze variables
     const varLines = lines.filter(l => {
         const t = l.trim();
-        return t.startsWith('const ') || t.startsWith('let ') || t.startsWith('var ');
+        return (t.startsWith('const ') || t.startsWith('let ') || t.startsWith('var ')) && !t.includes('= (');
     });
-
-    if (varLines.length > 0) {
-        explanation += `### 📊 Variables (${varLines.length} total)\n\n`;
-
-        varLines.slice(0, 10).forEach((line, index) => {
-            const varMatch = line.match(/(const|let|var)\s+(\w+)/);
-            if (varMatch) {
-                const [, keyword, varName] = varMatch;
-                explanation += `**${index + 1}. \`${varName}\`**\n`;
-
-                if (keyword === 'const') {
-                    explanation += `   - **Type:** Constant (cannot be reassigned)\n`;
-                    explanation += `   - **Best practice:** Use for values that won't change\n`;
-                } else if (keyword === 'let') {
-                    explanation += `   - **Type:** Variable (can be reassigned)\n`;
-                    explanation += `   - **Scope:** Block-scoped\n`;
-                } else {
-                    explanation += `   - **Type:** Variable (old syntax, avoid using)\n`;
-                    explanation += `   - **Scope:** Function-scoped\n`;
-                }
-
-                if (line.includes('= []')) {
-                    explanation += `   - **Initial value:** Empty array\n`;
-                } else if (line.includes('= {}')) {
-                    explanation += `   - **Initial value:** Empty object\n`;
-                } else if (line.includes('useState')) {
-                    explanation += `   - **Initial value:** React state\n`;
-                }
-
-                explanation += `\n`;
-            }
-        });
-
-        if (varLines.length > 10) {
-            explanation += `*...and ${varLines.length - 10} more variables*\n\n`;
-        }
-    }
-
-    // Code patterns
-    explanation += `### 🎨 Code Patterns\n\n`;
-
     const hasAsyncAwait = file.content.includes('async') && file.content.includes('await');
-    const hasPromises = file.content.includes('.then(') || file.content.includes('.catch(');
-    const hasArrowFunctions = file.content.includes('=>');
-    const hasDestructuring = file.content.includes('const {') || file.content.includes('const [');
-    const hasSpreadOperator = file.content.includes('...');
-    const hasTemplateStrings = file.content.includes('`');
 
-    if (hasAsyncAwait) {
-        explanation += `**Async/Await Pattern**\n`;
-        explanation += `- Modern way to handle asynchronous operations\n`;
-        explanation += `- Makes async code look synchronous\n`;
-        explanation += `- Easier to read than promises\n\n`;
-    }
+    // Enhanced Analysis Logic
+    explanation += `## 🔍 Deep Code Analysis\n\n`;
 
-    if (hasPromises) {
-        explanation += `**Promise Pattern**\n`;
-        explanation += `- Handles asynchronous operations\n`;
-        explanation += `- Uses .then() for success, .catch() for errors\n\n`;
-    }
+    // 1. Core Logic Flow
+    explanation += `### 🧠 Logic Flow\n`;
+    explanation += `This file follows a structured flow:\n`;
+    if (imports.length > 0) explanation += `1. **Initialization**: Imports necessary dependencies (${imports.length} modules).\n`;
+    if (varLines.length > 0) explanation += `2. **State/Config**: Defines ${varLines.length} variables and constants.\n`;
+    if (functionLines.length > 0) explanation += `3. **Execution**: Defines ${functionLines.length} major functions that handle the core logic.\n`;
+    if (lines.some(l => l.includes('export default'))) explanation += `4. **Export**: Exposes the main functionality for other files to use.\n`;
+    explanation += `\n`;
 
-    if (hasArrowFunctions) {
-        explanation += `**Arrow Functions**\n`;
-        explanation += `- Modern ES6 syntax: \`() => {}\`\n`;
-        explanation += `- Shorter syntax than traditional functions\n`;
-        explanation += `- Lexical 'this' binding\n\n`;
-    }
-
-    if (hasDestructuring) {
-        explanation += `**Destructuring**\n`;
-        explanation += `- Extracts values from objects/arrays\n`;
-        explanation += `- Example: \`const { name, age } = person\`\n`;
-        explanation += `- Makes code cleaner and more readable\n\n`;
-    }
-
-    if (hasSpreadOperator) {
-        explanation += `**Spread Operator (...)**\n`;
-        explanation += `- Expands arrays/objects\n`;
-        explanation += `- Used for copying, merging, or passing arguments\n\n`;
-    }
-
-    if (hasTemplateStrings) {
-        explanation += `**Template Literals**\n`;
-        explanation += `- String interpolation with backticks\n`;
-        explanation += `- Example: \`Hello \${name}\`\n`;
-        explanation += `- Supports multi-line strings\n\n`;
-    }
-
-    // Summary
-    explanation += `## 📝 Summary\n\n`;
-    explanation += `This ${isReact ? 'React component' : isTypeScript ? 'TypeScript' : 'JavaScript'} file:\n\n`;
-    explanation += `- **Imports:** ${imports.length} dependencies\n`;
-    explanation += `- **Functions:** ${functionLines.length} defined\n`;
-    explanation += `- **Variables:** ${varLines.length} declared\n`;
-    explanation += `- **Lines of code:** ${lines.length}\n`;
-    explanation += `- **Complexity:** ${lines.length > 200 ? 'High' : lines.length > 100 ? 'Medium' : 'Low'}\n\n`;
+    // 2. Key Concepts Explained
+    explanation += `### 🔑 Key Concepts\n\n`;
 
     if (isReact) {
-        explanation += `**React Component Purpose:**\n`;
-        explanation += `This component is a reusable piece of UI that can be rendered in the application. `;
-        explanation += `It manages its own state and lifecycle, and can receive data through props.\n`;
+        explanation += `#### **Component Architecture**\n`;
+        explanation += `This is a **Functional Component**. Unlike older Class components, it uses **Hooks** to manage logic. \n`;
+        explanation += `Think of it as a function that takes inputs (Props) and returns a UI (JSX).\n\n`;
     }
+
+    if (hasAsyncAwait) {
+        explanation += `#### **Asynchronous Operations**\n`;
+        explanation += `The code uses \`async/await\`. This is crucial for performance. instead of blocking the whole app while waiting for a database or API, it lets the browser run other tasks and comes back when the data is ready.\n\n`;
+    }
+
+    if (file.content.includes('map(')) {
+        explanation += `#### **List Rendering**\n`;
+        explanation += `The \`.map()\` function is used to transform arrays into UI elements. This is how lists of items (like products, posts, or messages) are efficiently displayed on screen.\n\n`;
+    }
+
+    // 3. Line-by-Line Breakdown (Major Blocks)
+    explanation += `### 📝 Step-by-Step Code Walkthrough\n\n`;
+
+    let stepCount = 1;
+    let inInterface = false;
+    let inComponent = false;
+
+    lines.forEach((line, i) => {
+        const t = line.trim();
+        const lineNum = i + 1;
+
+        if (!t || t.startsWith('//') || t.startsWith('/*') || t.startsWith('*')) return;
+
+        // Detect Step: Imports
+        if (t.startsWith('import ')) {
+            // Only show the first import or significant ones to avoid clutter, 
+            // but user wants COMPLETE detail, so let's summarize blocks if consecutive.
+            const isFirstImport = lines[i - 1]?.trim().startsWith('import ') === false;
+            if (isFirstImport) {
+                explanation += `#### **Step ${stepCount++}: Importing Dependencies**\n`;
+                explanation += `*Line ${lineNum}*: The code starts by importing necessary external libraries and local modules.\n`;
+            }
+            return;
+        }
+
+        // Detect Step: Interfaces/Types
+        if (t.startsWith('interface ') || t.startsWith('type ')) {
+            const name = t.split(' ')[1];
+            inInterface = true;
+            explanation += `#### **Step ${stepCount++}: Defining Data Types**\n`;
+            explanation += `*Line ${lineNum}*: We define a strict structure for \`${name}\`. This ensures that data passed around matches exactly what we expect (Type Safety).\n`;
+            return;
+        }
+
+        // Detect Step: Main Component Declaration
+        if (t.match(/export\s+(default\s+)?function\s+\w+/) || t.match(/const\s+\w+\s*=\s*(async\s*)?\([^)]*\)\s*=>/)) {
+            const funcName = t.split('(')[0].replace(/export\s+default\s+function\s+|export\s+function\s+|function\s+|const\s+|export\s+const\s+/g, '').replace('=', '').trim();
+            inComponent = true;
+            explanation += `#### **Step ${stepCount++}: Defining the Logic Container \`${funcName}\`**\n`;
+            explanation += `*Line ${lineNum}*: This is where the main functionality begins. Everything inside the \`{ ... }\` belongs to this unit.\n`;
+            if (isReact) explanation += `For a React component, this function will run every time the component needs to re-render.\n`;
+            return;
+        }
+
+        // Detect Step: Hooks (UseState, UseEffect)
+        if (t.startsWith('const [') && t.includes('useState')) {
+            const stateVar = t.split('[')[1].split(',')[0];
+            explanation += `#### **Step ${stepCount++}: Initializing State \`${stateVar}\`**\n`;
+            explanation += `*Line ${lineNum}*: We create a memory box called \`${stateVar}\`. When this value changes, the component will automatically update to show the new data.\n`;
+            return;
+        }
+
+        if (t.startsWith('useEffect')) {
+            explanation += `#### **Step ${stepCount++}: Setting up Side Effects**\n`;
+            explanation += `*Line ${lineNum}*: This block tells React to "do something after the component paints". Use cases: Fetching data, setting up timers, or listening to mouse events.\n`;
+            return;
+        }
+
+        // Detect Step: Return Statement (JSX)
+        if (t.startsWith('return (') || (t.startsWith('return') && t.includes('<'))) {
+            explanation += `#### **Step ${stepCount++}: Rendering the Output**\n`;
+            explanation += `*Line ${lineNum}*: Finally, the function returns the layout (HTML/JSX) that the user will actually see on the screen.\n`;
+            return;
+        }
+
+        // Detect Step: API Call
+        if (t.includes('fetch(') || t.includes('axios.') || t.includes('.get(')) {
+            explanation += `#### **Step ${stepCount++}: Fetching External Data**\n`;
+            explanation += `*Line ${lineNum}*: The code reaches out to an external server (API) to get fresh data.\n`;
+            return;
+        }
+    });
+
+    explanation += `\n### 💡 Usage & Context\n`;
+    explanation += `**How to use this component:**\n`;
+    if (file.path.includes('page.tsx')) {
+        explanation += `This is a **Page**. You don't import it; you visit it in your browser. The URL depends on the folder name (e.g., \`src/app/about/page.tsx\` -> \`/about\`).\n`;
+    } else if (file.path.includes('components/')) {
+        explanation += `This is a **Reusable Component**. You import it into a Page or another Component like this:\n`;
+        const componentName = file.path.split('/').pop()?.split('.')[0] || 'Component';
+        explanation += `\`\`\`tsx\nimport { ${componentName} } from "@/components/${componentName}";\n\n<${componentName} />\n\`\`\`\n`;
+    } else {
+        explanation += `This is a **Utility Module**. You import specific functions from it when you need this logic.\n`;
+    }
+
+    explanation += `\n**Why is this code important?**\n`;
+    explanation += `It solves the problem of *${isReact ? 'presenting data to the user' : 'handling business logic'}* in the \`${file.path.split('/').slice(-2).join('/')}\` part of the application.\n`;
 
     return explanation;
 }

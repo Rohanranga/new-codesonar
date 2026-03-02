@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
 import { motion } from "framer-motion";
-import { Network } from "lucide-react";
+import { Network, Download } from "lucide-react";
+import { toJpeg } from 'html-to-image';
 
 interface ArchitectureViewProps {
     diagram: string;
@@ -13,6 +14,21 @@ export function ArchitectureView({ diagram }: ArchitectureViewProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [error, setError] = useState<string | null>(null);
     const [isRendering, setIsRendering] = useState(true);
+
+    const handleDownload = async () => {
+        if (containerRef.current) {
+            try {
+                // JPG doesn't support transparency, so we use a dark background
+                const dataUrl = await toJpeg(containerRef.current, { backgroundColor: '#111' });
+                const link = document.createElement('a');
+                link.download = 'architecture-diagram.jpg';
+                link.href = dataUrl;
+                link.click();
+            } catch (err) {
+                console.error("Failed to download diagram:", err);
+            }
+        }
+    };
 
     useEffect(() => {
         const renderDiagram = async () => {
@@ -33,12 +49,6 @@ export function ArchitectureView({ diagram }: ArchitectureViewProps) {
             const diagramToRender = diagram && diagram.trim().length > 10
                 ? diagram
                 : fallbackDiagram;
-
-            console.log("=== ARCHITECTURE DIAGRAM DEBUG ===");
-            console.log("Received diagram:", diagram);
-            console.log("Diagram length:", diagram?.length);
-            console.log("Using diagram:", diagramToRender);
-            console.log("================================");
 
             try {
                 // Initialize Mermaid
@@ -65,7 +75,6 @@ export function ArchitectureView({ diagram }: ArchitectureViewProps) {
 
                 if (containerRef.current) {
                     containerRef.current.innerHTML = svg;
-                    console.log("✅ Mermaid diagram rendered successfully");
                 }
             } catch (err) {
                 console.error("❌ Mermaid render error:", err);
@@ -107,9 +116,21 @@ export function ArchitectureView({ diagram }: ArchitectureViewProps) {
                     <Network className="w-5 h-5 text-green-400" />
                 </div>
                 <h3 className="text-lg font-semibold">Visual Architecture</h3>
-                {isRendering && (
-                    <span className="text-xs text-gray-400 ml-auto">Rendering...</span>
-                )}
+
+                <div className="ml-auto flex gap-2">
+                    {!isRendering && !error && (
+                        <button
+                            onClick={handleDownload}
+                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+                            title="Download Diagram (JPG)"
+                        >
+                            <Download className="w-4 h-4" />
+                        </button>
+                    )}
+                    {isRendering && (
+                        <span className="text-xs text-gray-400 self-center">Rendering...</span>
+                    )}
+                </div>
             </div>
 
             <div

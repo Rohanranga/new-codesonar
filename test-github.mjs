@@ -1,4 +1,4 @@
-const { Octokit } = require("octokit");
+import { Octokit } from "octokit";
 
 async function testGithub() {
     const octokit = new Octokit({
@@ -9,7 +9,7 @@ async function testGithub() {
         const { data } = await octokit.request("GET /repos/Rohanranga/Google_Clone_App");
         console.log("Success:", data.default_branch);
     } catch (e) {
-        console.error("GitHub Error:", e.status);
+        console.error("GitHub Error:", e.status, e.message);
     }
 }
 testGithub();

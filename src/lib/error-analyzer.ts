@@ -4,25 +4,29 @@
  */
 
 export function analyzeCodeForErrors(files: { path: string; content: string }[]) {
-    const errors: Array<{
-        file: string;
-        line: number;
-        type: string;
-        message: string;
-        severity: string;
-        suggestion?: string;
-        fixCode?: string;
-    }> = [];
+    // Use Maps to deduplicate and count occurrences
+    const errorMap = new Map<string, any>();
+    const warningMap = new Map<string, any>();
 
-    const warnings: Array<{
-        file: string;
-        line: number;
-        type: string;
-        message: string;
-        severity: string;
-        suggestion?: string;
-        fixCode?: string;
-    }> = [];
+    const addError = (error: any) => {
+        // Create a unique key based on message and type (ignoring line number for aggregation)
+        const key = `${error.type}:${error.message}`;
+        if (errorMap.has(key)) {
+            errorMap.get(key).count++;
+            // Optionally keep track of files/lines if needed, but for now we just count
+        } else {
+            errorMap.set(key, { ...error, count: 1 });
+        }
+    };
+
+    const addWarning = (warning: any) => {
+        const key = `${warning.type}:${warning.message}`;
+        if (warningMap.has(key)) {
+            warningMap.get(key).count++;
+        } else {
+            warningMap.set(key, { ...warning, count: 1 });
+        }
+    };
 
     files.forEach(file => {
         const lines = file.content.split('\n');
@@ -31,9 +35,9 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
             const lineNum = index + 1;
             const trimmed = line.trim();
 
-            // Check for console.log (should be removed in production)
+            // Check for console.log
             if (trimmed.includes('console.log') || trimmed.includes('console.error') || trimmed.includes('console.warn')) {
-                warnings.push({
+                addWarning({
                     file: file.path,
                     line: lineNum,
                     type: 'Code Quality',
@@ -44,9 +48,9 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
                 });
             }
 
-            // Check for TODO/FIXME comments
+            // Check for TODO/FIXME
             if (trimmed.includes('TODO') || trimmed.includes('FIXME')) {
-                warnings.push({
+                addWarning({
                     file: file.path,
                     line: lineNum,
                     type: 'Incomplete Code',
@@ -58,7 +62,7 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
 
             // Check for debugger statements
             if (trimmed.includes('debugger')) {
-                errors.push({
+                addError({
                     file: file.path,
                     line: lineNum,
                     type: 'Debug Code',
@@ -69,9 +73,9 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
                 });
             }
 
-            // Check for var usage (should use let/const)
+            // Check for var usage
             if (trimmed.startsWith('var ')) {
-                warnings.push({
+                addWarning({
                     file: file.path,
                     line: lineNum,
                     type: 'Modern JavaScript',
@@ -84,7 +88,7 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
 
             // Check for == instead of ===
             if (trimmed.includes('==') && !trimmed.includes('===') && !trimmed.includes('!==')) {
-                warnings.push({
+                addWarning({
                     file: file.path,
                     line: lineNum,
                     type: 'Type Safety',
@@ -97,7 +101,7 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
 
             // Check for missing error handling in async functions
             if (trimmed.includes('await ') && !file.content.includes('try') && !file.content.includes('catch')) {
-                warnings.push({
+                addWarning({
                     file: file.path,
                     line: lineNum,
                     type: 'Error Handling',
@@ -118,7 +122,7 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
 
             secretPatterns.forEach(pattern => {
                 if (pattern.test(trimmed) && trimmed.includes('=') && !trimmed.includes('process.env')) {
-                    errors.push({
+                    addError({
                         file: file.path,
                         line: lineNum,
                         type: 'Security',
@@ -130,7 +134,7 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
                 }
             });
 
-            // Check for missing semicolons (if not using a formatter)
+            // Check for missing semicolons
             if (file.path.endsWith('.js') || file.path.endsWith('.ts')) {
                 if (trimmed.length > 0 &&
                     !trimmed.endsWith(';') &&
@@ -140,42 +144,43 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
                     !trimmed.startsWith('/*') &&
                     !trimmed.startsWith('*') &&
                     !trimmed.startsWith('import') &&
-                    !trimmed.startsWith('export')) {
-                    // This is a soft warning
+                    !trimmed.startsWith('export') &&
+                    !trimmed.startsWith('case') &&
+                    !trimmed.startsWith('default')) { // Added case/default check
                     if (trimmed.includes('=') || trimmed.includes('return')) {
-                        warnings.push({
+                        addWarning({
                             file: file.path,
                             line: lineNum,
                             type: 'Code Style',
                             message: 'Missing semicolon',
                             severity: 'info',
-                            suggestion: 'Add semicolon at the end of the statement (or use a formatter like Prettier)'
+                            suggestion: 'Add semicolon at the end of the statement'
                         });
                     }
                 }
             }
 
-            // Check for long lines (>120 characters)
+            // Check for long lines
             if (line.length > 120) {
-                warnings.push({
+                addWarning({
                     file: file.path,
                     line: lineNum,
                     type: 'Readability',
-                    message: `Line too long (${line.length} characters)`,
+                    message: `Line too long (>120 chars)`,
                     severity: 'info',
-                    suggestion: 'Break long lines into multiple lines for better readability'
+                    suggestion: 'Break long lines into multiple lines'
                 });
             }
 
-            // Check for nested ternary operators
+            // Check for nested ternary
             if ((trimmed.match(/\?/g) || []).length > 1) {
-                warnings.push({
+                addWarning({
                     file: file.path,
                     line: lineNum,
                     type: 'Complexity',
                     message: 'Nested ternary operators detected',
                     severity: 'warning',
-                    suggestion: 'Consider using if-else statements for better readability'
+                    suggestion: 'Consider using if-else statements'
                 });
             }
         });
@@ -188,13 +193,13 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
             const functionMatches = content.match(/function\s+\w+\s*\([^)]*\)/g) || [];
             functionMatches.forEach(match => {
                 if (!match.includes(':')) {
-                    warnings.push({
+                    addWarning({
                         file: file.path,
                         line: 0,
                         type: 'TypeScript',
                         message: 'Function without type annotations',
                         severity: 'warning',
-                        suggestion: 'Add type annotations to function parameters and return types'
+                        suggestion: 'Add type annotations'
                     });
                 }
             });
@@ -203,37 +208,29 @@ export function analyzeCodeForErrors(files: { path: string; content: string }[])
         // Check for large files
         const lineCount = lines.length;
         if (lineCount > 300) {
-            warnings.push({
+            addWarning({
                 file: file.path,
                 line: 0,
                 type: 'File Size',
                 message: `Large file (${lineCount} lines)`,
                 severity: 'warning',
-                suggestion: 'Consider breaking this file into smaller, more focused modules'
+                suggestion: 'Consider breaking this file into smaller modules'
             });
         }
-
-        // Check for duplicate code (very basic check)
-        const codeBlocks = content.split('\n\n');
-        const seen = new Set();
-        codeBlocks.forEach(block => {
-            if (block.trim().length > 50) {
-                if (seen.has(block)) {
-                    warnings.push({
-                        file: file.path,
-                        line: 0,
-                        type: 'Code Duplication',
-                        message: 'Potential duplicate code block detected',
-                        severity: 'info',
-                        suggestion: 'Extract duplicate code into reusable functions'
-                    });
-                }
-                seen.add(block);
-            }
-        });
     });
 
-    // Limit results to prevent overwhelming the system
+    // Flatten maps to arrays
+    const finalizeIssues = (map: Map<string, any>) => {
+        return Array.from(map.values()).map(item => ({
+            ...item,
+            message: item.count > 1 ? `${item.message} (${item.count} occurrences)` : item.message
+        }));
+    };
+
+    const errors = finalizeIssues(errorMap);
+    const warnings = finalizeIssues(warningMap);
+
+    // Limit results
     const MAX_ERRORS = 50;
     const MAX_WARNINGS = 100;
 

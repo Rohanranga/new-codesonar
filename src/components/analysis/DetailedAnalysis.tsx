@@ -5,6 +5,9 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, AlertTriangle, Package, FileCode, CheckCircle } from "lucide-react";
 import { PotentialChanges } from "./PotentialChanges";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { CodeBlock } from "@/components/ui/CodeBlock";
 
 interface DetailedAnalysisProps {
     data: AnalysisResult;
@@ -14,7 +17,24 @@ export function DetailedAnalysis({ data }: DetailedAnalysisProps) {
     return (
         <div className="space-y-6">
             {/* Errors & Warnings */}
-            {/* Errors & Warnings */}
+            {data.isFallback && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="glass-card p-4 rounded-xl bg-gradient-to-r from-red-900/40 to-orange-900/40 border border-red-500/30 flex items-center gap-4 mb-6"
+                >
+                    <div className="p-2 bg-red-500/20 rounded-full">
+                        <AlertTriangle className="w-6 h-6 text-red-400" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-red-200">Analysis Incomplete (Fallback Mode)</h3>
+                        <p className="text-sm text-red-300/80">
+                            The AI analysis failed (likely due to an expired API key). Showing limited local results. Please update your API key for dynamic insights.
+                        </p>
+                    </div>
+                </motion.div>
+            )}
+
             {(data.errors.length > 0 || data.warnings.length > 0) && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -281,10 +301,23 @@ function CodeExplorer({ files }: { files: AnalysisResult['fileAnalysis'] }) {
                                         <span className="text-sm uppercase tracking-wider font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">AI Explanation</span>
                                         <div className="h-px flex-1 bg-gradient-to-r from-indigo-500/50 to-transparent"></div>
                                     </div>
-                                    <div className="prose prose-invert prose-sm max-w-none">
-                                        <p className="whitespace-pre-wrap text-gray-400 leading-relaxed font-sans">
-                                            {currentExplanation || selectedFile.explanation || 'Generating explanation...'}
-                                        </p>
+                                    <div className="prose prose-invert prose-sm max-w-none prose-p:text-gray-400 prose-headings:text-indigo-300 prose-strong:text-white prose-code:text-indigo-200">
+                                        <div className="prose prose-invert prose-sm max-w-none prose-p:text-gray-400 prose-headings:text-indigo-300 prose-strong:text-white prose-code:text-indigo-200">
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm]}
+                                                components={{
+                                                    code: ({ node, inline, className, children, ...props }: any) => {
+                                                        return (
+                                                            <CodeBlock inline={inline} className={className} {...props}>
+                                                                {children}
+                                                            </CodeBlock>
+                                                        );
+                                                    }
+                                                }}
+                                            >
+                                                {currentExplanation || selectedFile.explanation || 'Generating explanation...'}
+                                            </ReactMarkdown>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

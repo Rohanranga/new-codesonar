@@ -4,6 +4,9 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Bot, User, X, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { CodeBlock } from "@/components/ui/CodeBlock";
 
 interface Message {
     role: "user" | "model";
@@ -107,24 +110,41 @@ export function ChatInterface({ context }: ChatInterfaceProps) {
                                     <div
                                         className={cn(
                                             "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-                                            msg.role === "user" ? "bg-primary" : "bg-secondary"
+                                            msg.role === "user" ? "bg-primary" : "bg-indigo-500/20"
                                         )}
                                     >
                                         {msg.role === "user" ? (
                                             <User className="w-4 h-4 text-primary-foreground" />
                                         ) : (
-                                            <Bot className="w-4 h-4 text-foreground" />
+                                            <Bot className="w-4 h-4 text-indigo-300" />
                                         )}
                                     </div>
                                     <div
                                         className={cn(
-                                            "p-3 rounded-2xl text-sm",
+                                            "p-3 rounded-2xl text-sm overflow-hidden",
                                             msg.role === "user"
                                                 ? "bg-primary text-primary-foreground rounded-tr-none"
-                                                : "bg-secondary/50 text-foreground rounded-tl-none"
+                                                : "bg-[#1a1a1a] border border-white/10 text-gray-200 rounded-tl-none prose prose-invert max-w-none prose-sm prose-p:my-1 prose-pre:my-2"
                                         )}
                                     >
-                                        {msg.content}
+                                        {msg.role === "user" ? (
+                                            msg.content
+                                        ) : (
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm]}
+                                                components={{
+                                                    code: ({ node, inline, className, children, ...props }: any) => {
+                                                        return (
+                                                            <CodeBlock inline={inline} className={className} {...props}>
+                                                                {children}
+                                                            </CodeBlock>
+                                                        );
+                                                    }
+                                                }}
+                                            >
+                                                {msg.content}
+                                            </ReactMarkdown>
+                                        )}
                                     </div>
                                 </div>
                             ))}

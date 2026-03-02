@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { Lightbulb, TrendingUp, Shield, Zap, Code, RefreshCw } from "lucide-react";
 import { useState } from "react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Improvement {
     category: 'complexity' | 'performance' | 'duplication' | 'security' | 'best-practice' | 'refactoring';
@@ -82,8 +84,8 @@ export function PotentialChanges({ improvements }: PotentialChangesProps) {
                 <button
                     onClick={() => setSelectedCategory('all')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedCategory === 'all'
-                            ? 'bg-primary text-white'
-                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                        ? 'bg-primary text-white'
+                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
                         }`}
                 >
                     All ({improvements.length})
@@ -95,8 +97,8 @@ export function PotentialChanges({ improvements }: PotentialChangesProps) {
                             key={category}
                             onClick={() => setSelectedCategory(category)}
                             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize ${selectedCategory === category
-                                    ? 'bg-primary text-white'
-                                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                ? 'bg-primary text-white'
+                                : 'bg-white/5 text-gray-400 hover:bg-white/10'
                                 }`}
                         >
                             {category.replace('-', ' ')} ({count})
@@ -128,7 +130,11 @@ export function PotentialChanges({ improvements }: PotentialChangesProps) {
                                         <Icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
                                         <div className="flex-1">
                                             <h4 className="font-semibold text-sm mb-1">{improvement.title}</h4>
-                                            <p className="text-xs text-gray-300 mb-2">{improvement.description}</p>
+                                            <div className="text-xs text-gray-300 mb-2 prose prose-invert prose-sm max-w-none prose-p:my-0">
+                                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                    {improvement.description}
+                                                </ReactMarkdown>
+                                            </div>
                                             <div className="flex items-center gap-2 text-xs text-gray-400">
                                                 <span>📁 {improvement.file}</span>
                                                 {improvement.line && <span>Line {improvement.line}</span>}

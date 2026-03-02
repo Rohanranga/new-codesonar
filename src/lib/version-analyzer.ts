@@ -1,18 +1,18 @@
-/**
- * Package version analyzer
- * Extracts version information from package.json and determines if packages are outdated
- */
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 export interface PackageInfo {
     name: string;
     current: string;
     latest: string;
-    status: 'latest' | 'outdated' | 'unknown';
+    status: 'latest' | 'outdated' | 'unknown' | 'up-to-date';
     type: 'dependency' | 'devDependency' | 'framework' | 'language';
 }
 
 /**
- * Analyzes package.json to extract version information
+ * Analyzes package.json to extract version information (Synchronous fallback)
  */
 export function analyzePackageVersions(files: Array<{ path: string; content: string }>): PackageInfo[] {
     const packages: PackageInfo[] = [];
@@ -34,12 +34,12 @@ export function analyzePackageVersions(files: Array<{ path: string; content: str
                     name,
                     current: cleanVersion(version as string),
                     latest: getLatestVersionHint(name),
-                    status: 'unknown', // We'll mark as unknown since we can't fetch real-time data
+                    status: 'unknown',
                     type: 'dependency'
                 });
             });
 
-            // Process dev dependencies (limit to important ones)
+            // Process dev dependencies
             const importantDevDeps = ['typescript', 'eslint', 'prettier', 'jest', 'vitest', '@types/node', '@types/react'];
             Object.entries(devDependencies).forEach(([name, version]) => {
                 if (importantDevDeps.some(dep => name.includes(dep))) {
@@ -57,11 +57,67 @@ export function analyzePackageVersions(files: Array<{ path: string; content: str
         }
     }
 
-    // Detect languages and frameworks from file extensions
+    // Detect technical stack
     const detectedTech = detectTechnologies(files);
     packages.push(...detectedTech);
 
     return packages;
+}
+
+/**
+ * Async version that uses npm outdated for real data
+ */
+export async function analyzePackageVersionsAsync(files: Array<{ path: string; content: string }>): Promise<PackageInfo[]> {
+    // Start with the basic sync analysis
+    const basicInfo = analyzePackageVersions(files);
+
+    // Create a map for easy lookup
+    const packageMap = new Map<string, PackageInfo>();
+    basicInfo.forEach(p => packageMap.set(p.name, p));
+
+    try {
+        // Run npm outdated
+        // We assume the CWD is the project root
+        const { stdout } = await execAsync('npm outdated --json', { encoding: 'utf8' }).catch(e => e);
+
+        if (stdout) {
+            const outdatedData = JSON.parse(stdout);
+            Object.entries(outdatedData).forEach(([name, info]: [string, any]) => {
+                if (packageMap.has(name)) {
+                    const pkg = packageMap.get(name)!;
+                    pkg.latest = info.latest;
+                    pkg.current = info.current || pkg.current;
+                    pkg.status = 'outdated';
+                }
+            });
+        }
+
+        // Mark remaining known packages as up-to-date if they weren't in outdated list
+        // (and aren't just 'detected' languages)
+        packageMap.forEach(pkg => {
+            if (pkg.status === 'unknown' && pkg.type !== 'language' && pkg.type !== 'framework') {
+                if (pkg.latest === '-') {
+                    // If we still don't know the latest, keep it as unknown or check hint
+                    const hint = getLatestVersionHint(pkg.name);
+                    if (hint !== '-') {
+                        pkg.latest = hint;
+                        // weak check against hint
+                        pkg.status = compareVersions(pkg.current, hint) === 'outdated' ? 'outdated' : 'up-to-date';
+                    } else {
+                        pkg.status = 'up-to-date'; // Assume up to date if npm outdated didn't complain
+                        pkg.latest = pkg.current;
+                    }
+                } else {
+                    pkg.status = 'up-to-date';
+                }
+            }
+        });
+
+    } catch (e) {
+        console.warn('Failed to run npm outdated in async analysis:', e);
+    }
+
+    return Array.from(packageMap.values());
 }
 
 /**
