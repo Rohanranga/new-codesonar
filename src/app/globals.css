@@ -83,6 +83,12 @@
 @layer base {
   * {
     @apply border-border;
+    cursor: none !important;
+  }
+
+  /* Restore text cursor inside form fields */
+  input, textarea, select {
+    cursor: text !important;
   }
 
   body {

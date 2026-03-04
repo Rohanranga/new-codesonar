@@ -3,11 +3,38 @@
 import { AnalysisResult } from "@/types/analysis";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle, AlertTriangle, Package, FileCode, CheckCircle } from "lucide-react";
+import { AlertCircle, AlertTriangle, Package, FileCode, CheckCircle, Check, Copy } from "lucide-react";
 import { PotentialChanges } from "./PotentialChanges";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { CodeBlock } from "@/components/ui/CodeBlock";
+
+/* ── Copy button for the Source Code panel ── */
+function CopyCodeButton({ code }: { code: string }) {
+    const [copied, setCopied] = useState(false);
+    const copy = async () => {
+        if (!code) return;
+        try {
+            await navigator.clipboard.writeText(code);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch { }
+    };
+    return (
+        <button
+            onClick={copy}
+            title={copied ? "Copied!" : "Copy code"}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all duration-200 ${copied
+                ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                : "bg-white/5 border-white/10 text-gray-400 hover:bg-indigo-500/20 hover:border-indigo-500/40 hover:text-indigo-300"
+                }`}
+        >
+            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            {copied ? "Copied!" : "Copy"}
+        </button>
+    );
+}
+
 
 interface DetailedAnalysisProps {
     data: AnalysisResult;
@@ -15,7 +42,7 @@ interface DetailedAnalysisProps {
 
 const sectionVariants = {
     hidden: { opacity: 0, y: 28 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
 };
 
 export function DetailedAnalysis({ data }: DetailedAnalysisProps) {
@@ -177,21 +204,19 @@ export function DetailedAnalysis({ data }: DetailedAnalysisProps) {
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
                             whileHover={{ y: -2, transition: { duration: 0.15 } }}
-                            className={`p-4 rounded-lg border-l-4 ${
-                                item.priority === 'critical' ? 'bg-red-500/10 border-red-500' :
+                            className={`p-4 rounded-lg border-l-4 ${item.priority === 'critical' ? 'bg-red-500/10 border-red-500' :
                                 item.priority === 'high' ? 'bg-orange-500/10 border-orange-500' :
-                                item.priority === 'medium' ? 'bg-yellow-500/10 border-yellow-500' :
-                                'bg-green-500/10 border-green-500'
-                            }`}
+                                    item.priority === 'medium' ? 'bg-yellow-500/10 border-yellow-500' :
+                                        'bg-green-500/10 border-green-500'
+                                }`}
                         >
                             <div className="flex items-start justify-between mb-2">
                                 <h4 className="font-semibold text-sm">{item.category}</h4>
-                                <span className={`px-2 py-0.5 rounded text-xs font-bold ${
-                                    item.priority === 'critical' ? 'bg-red-500/20 text-red-300' :
+                                <span className={`px-2 py-0.5 rounded text-xs font-bold ${item.priority === 'critical' ? 'bg-red-500/20 text-red-300' :
                                     item.priority === 'high' ? 'bg-orange-500/20 text-orange-300' :
-                                    item.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-300' :
-                                    'bg-green-500/20 text-green-300'
-                                }`}>
+                                        item.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-300' :
+                                            'bg-green-500/20 text-green-300'
+                                    }`}>
                                     {item.priority.toUpperCase()}
                                 </span>
                             </div>
@@ -258,18 +283,16 @@ function CodeExplorer({ files }: { files: AnalysisResult['fileAnalysis'] }) {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: i * 0.03 }}
                             onClick={() => setSelectedFile(file)}
-                            className={`w-full text-left p-3 sm:p-4 text-xs sm:text-sm hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-purple-500/10 transition-all duration-200 flex items-center justify-between group border-b border-white/5 ${
-                                selectedFile?.path === file.path
-                                    ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-l-4 border-indigo-400'
-                                    : 'border-l-4 border-transparent hover:border-indigo-500/50'
-                            }`}
+                            className={`w-full text-left p-3 sm:p-4 text-xs sm:text-sm hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-purple-500/10 transition-all duration-200 flex items-center justify-between group border-b border-white/5 ${selectedFile?.path === file.path
+                                ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-l-4 border-indigo-400'
+                                : 'border-l-4 border-transparent hover:border-indigo-500/50'
+                                }`}
                         >
                             <span className="truncate font-mono text-gray-300 group-hover:text-indigo-300 transition-colors mr-2">{file.path}</span>
-                            <span className={`text-xs px-1.5 py-0.5 rounded-md font-medium flex-shrink-0 ${
-                                selectedFile?.path === file.path
-                                    ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50'
-                                    : 'bg-white/5 text-gray-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300'
-                            }`}>{file.language}</span>
+                            <span className={`text-xs px-1.5 py-0.5 rounded-md font-medium flex-shrink-0 ${selectedFile?.path === file.path
+                                ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50'
+                                : 'bg-white/5 text-gray-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300'
+                                }`}>{file.language}</span>
                         </motion.button>
                     ))}
                 </div>
@@ -287,10 +310,13 @@ function CodeExplorer({ files }: { files: AnalysisResult['fileAnalysis'] }) {
                             </div>
                             <div className="flex-1 overflow-y-auto grid grid-rows-2" style={{ minHeight: 0 }}>
                                 <div className="border-b border-white/10 overflow-auto bg-[#0a0a0a] relative">
-                                    <div className="absolute top-2 right-2 px-2 py-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-lg text-xs font-semibold text-green-300 z-10 pointer-events-none">
-                                        📄 Source Code
+                                    <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
+                                        <CopyCodeButton code={selectedFile.content || selectedFile.preview || ""} />
+                                        <div className="px-2 py-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-lg text-xs font-semibold text-green-300 pointer-events-none">
+                                            📄 Source Code
+                                        </div>
                                     </div>
-                                    <pre className="p-4 sm:p-6 text-xs font-mono leading-relaxed text-gray-300 overflow-x-auto">
+                                    <pre className="p-4 sm:p-6 pt-10 text-xs font-mono leading-relaxed text-gray-300 overflow-x-auto">
                                         <code>{selectedFile.content || selectedFile.preview || "// Content not available"}</code>
                                     </pre>
                                 </div>
