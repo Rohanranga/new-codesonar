@@ -81,34 +81,34 @@ export async function fetchRepoContent(owner: string, repo: string): Promise<Fil
             const isDoc = path.endsWith(".md") || path.endsWith(".txt");
 
             return isSource || isConfig || isDoc;
-        }).slice(0, 100); // Increased limit to 100 files for comprehensive analysis
+        }).slice(0, 60); // cap at 60 files — enough for thorough analysis without hammering the API
 
-        // 4. Fetch content for each file
+        // 4. Fetch content in small concurrent batches to avoid rate-limit spikes
         const files: FileContent[] = [];
+        const BATCH_SIZE = 10;
 
-        await Promise.all(
-            relevantFiles.map(async (file: any) => {
-                if (!file.path) return;
-                try {
-                    const { data } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
-                        owner,
-                        repo,
-                        path: file.path,
-                    });
+        for (let i = 0; i < relevantFiles.length; i += BATCH_SIZE) {
+            const batch = relevantFiles.slice(i, i + BATCH_SIZE);
+            await Promise.all(
+                batch.map(async (file: any) => {
+                    if (!file.path) return;
+                    try {
+                        const { data } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
+                            owner,
+                            repo,
+                            path: file.path,
+                        });
 
-                    if (Array.isArray(data) || data.type !== "file" || !data.content) return;
+                        if (Array.isArray(data) || data.type !== "file" || !data.content) return;
 
-                    // Decode Base64 content
-                    const content = Buffer.from(data.content, "base64").toString("utf-8");
-                    files.push({
-                        path: file.path,
-                        content,
-                    });
-                } catch (error) {
-                    console.warn(`Failed to fetch content for ${file.path}`, error);
-                }
-            })
-        );
+                        const content = Buffer.from(data.content, "base64").toString("utf-8");
+                        files.push({ path: file.path, content });
+                    } catch (error) {
+                        console.warn(`Failed to fetch content for ${file.path}`, error);
+                    }
+                })
+            );
+        }
 
         return files;
     } catch (error) {

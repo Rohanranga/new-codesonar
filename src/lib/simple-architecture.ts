@@ -6,7 +6,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY || "");
-const model = genAI.getGenerativeModel({ model: "gemini-flash-lite-latest" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 export async function generateArchitectureDiagram(files: Array<{ path: string; content: string }>): Promise<string> {
     try {
@@ -35,34 +35,32 @@ export async function generateArchitectureDiagram(files: Array<{ path: string; c
 
         console.log(`📊 Analyzing ${importantFiles.length} key files (${context.length} chars)`);
 
-        const prompt = `Analyze this codebase and create a detailed Mermaid flowchart showing the complete workflow.
+        const prompt = `Analyze this codebase and create a Mermaid flowchart showing the complete workflow.
 
 START WITH: flowchart TD
 
-Create 15-20 nodes showing:
-1. User interactions
-2. UI components (actual file names)
-3. API routes (actual paths)
-4. Services (GitHub, AI, databases)
-5. Data processing steps
-6. Results display
+STRICT RULES — violations break the parser:
+- Node labels: use ["text"] format only
+- Edge labels: use |"text"| format, NEVER use parentheses () or brackets [] inside edge labels
+- No special characters inside labels except letters, numbers, spaces, slashes, hyphens
+- 12-16 nodes maximum
 
-Use actual names from the code. Label all arrows clearly.
+Show: user interactions, UI components, API routes, services, data flow, results.
+Use actual file names and route paths from the code.
 
 Code:
-${context.slice(0, 50000)}
+${context.slice(0, 40000)}
 
-Example:
+Example of VALID syntax:
 flowchart TD
     User["👤 User"] -->|"GitHub URL"| HomePage["🖥️ page.tsx"]
-    HomePage -->|"POST"| API["⚙️ /api/analyze"]
-    API -->|"fetch"| GitHub["📦 GitHub API"]
-    GitHub -->|"files"| Analyzer["🤖 AI Analyzer"]
-    Analyzer -->|"results"| API
-    API -->|"response"| Dashboard["🖥️ Dashboard"]
+    HomePage -->|"POST request"| API["⚙️ /api/analyze"]
+    API -->|"fetch files"| GitHub["📦 GitHub API"]
+    GitHub -->|"raw files"| Analyzer["🤖 AI Analyzer"]
+    Analyzer -->|"results"| Dashboard["📊 Dashboard"]
     Dashboard -->|"display"| User
 
-Return only Mermaid code.`;
+Return only valid Mermaid code, nothing else.`;
 
         console.log("🤖 Calling Gemini AI...");
         const result = await model.generateContent(prompt);
@@ -75,12 +73,22 @@ Return only Mermaid code.`;
             .replace(/```/g, '')
             .trim();
 
-        if (diagram.length < 50) {
+        // Sanitize edge labels — remove parentheses and brackets inside |"..."| which break Mermaid parser
+        const sanitized = diagram
+            .replace(/\|"([^"]+)"\|/g, (_, label) =>
+                `|"${label.replace(/[()[\]{}]/g, '').trim()}"|`
+            )
+            // Also handle unquoted labels
+            .replace(/\|([^|">\n]+)\|/g, (_, label) =>
+                `|"${label.replace(/[()[\]{}]/g, '').trim()}"|`
+            );
+
+        if (sanitized.length < 50) {
             throw new Error("Generated diagram too short");
         }
 
         console.log("✅ Architecture generated successfully!");
-        return diagram;
+        return sanitized;
 
     } catch (error) {
         console.error("❌ Architecture generation failed:", error);

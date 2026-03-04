@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { SpotlightEffect } from "@/components/ui/SpotlightEffect";
+import { FlowFieldBackground } from "@/components/ui/FlowFieldWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,12 +20,16 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
+        {/* Fixed full-screen flow field background */}
+        <FlowFieldBackground />
+
         <Header />
         <SpotlightEffect />
-        <main className="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+        <main className="relative z-10 min-h-screen text-foreground selection:bg-primary/20 selection:text-primary">
           {children}
         </main>
       </body>
     </html>
   );
 }
+

@@ -1,43 +1,93 @@
 "use client";
 
 import { AnalysisResult } from "@/types/analysis";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Code2, Layers, Zap } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface SummaryCardProps {
     data: AnalysisResult;
 }
 
+// Animated counter that counts up from 0 to target
+function AnimatedNumber({ value, className }: { value: number; className?: string }) {
+    const motionVal = useMotionValue(0);
+    const spring = useSpring(motionVal, { stiffness: 60, damping: 20 });
+    const display = useTransform(spring, v => Math.round(v).toLocaleString());
+    const ref = useRef(false);
+
+    useEffect(() => {
+        if (!ref.current) {
+            ref.current = true;
+            motionVal.set(value);
+        }
+    }, [value, motionVal]);
+
+    return <motion.span className={className}>{display}</motion.span>;
+}
+
 export function SummaryCard({ data }: SummaryCardProps) {
+    const scoreColor = data.complexity.score > 7
+        ? 'from-red-500 to-rose-500'
+        : data.complexity.score > 4
+        ? 'from-yellow-500 to-amber-500'
+        : 'from-green-500 to-emerald-500';
+
+    const scoreBadge = data.complexity.score > 7
+        ? 'bg-red-500/20 text-red-300 border-red-500/40'
+        : data.complexity.score > 4
+        ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40'
+        : 'bg-green-500/20 text-green-300 border-green-500/40';
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Project Summary */}
             <motion.div
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -24 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="glass-card p-6 rounded-xl bg-gradient-to-br from-blue-500/5 to-transparent border border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10"
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                className="glass-card p-6 rounded-xl bg-gradient-to-br from-blue-500/5 to-transparent border border-blue-500/20 hover:border-blue-500/40 transition-colors duration-300 hover:shadow-lg hover:shadow-blue-500/10"
             >
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 shadow-lg">
+                    <motion.div
+                        className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10"
+                        whileHover={{ rotate: 10, scale: 1.1, transition: { duration: 0.2 } }}
+                    >
                         <Code2 className="w-6 h-6 text-blue-400" />
-                    </div>
-                    <h3 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Project Summary</h3>
+                    </motion.div>
+                    <h3 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                        Project Summary
+                    </h3>
                 </div>
-                <p className="text-gray-300 leading-relaxed text-sm">
+                <motion.p
+                    className="text-gray-300 leading-relaxed text-sm"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3, duration: 0.6 }}
+                >
                     {data.summary}
-                </p>
+                </motion.p>
             </motion.div>
 
+            {/* Tech Stack */}
             <motion.div
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 24 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="glass-card p-6 rounded-xl bg-gradient-to-br from-purple-500/5 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10"
+                transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                className="glass-card p-6 rounded-xl bg-gradient-to-br from-purple-500/5 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-colors duration-300 hover:shadow-lg hover:shadow-purple-500/10"
             >
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 shadow-lg">
+                    <motion.div
+                        className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/10"
+                        whileHover={{ rotate: -10, scale: 1.1, transition: { duration: 0.2 } }}
+                    >
                         <Layers className="w-6 h-6 text-purple-400" />
-                    </div>
-                    <h3 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Tech Stack</h3>
+                    </motion.div>
+                    <h3 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        Tech Stack
+                    </h3>
                 </div>
                 <div className="space-y-3">
                     {data.techStack.languages.length > 0 && (
@@ -45,9 +95,16 @@ export function SummaryCard({ data }: SummaryCardProps) {
                             <p className="text-xs font-semibold text-blue-400 mb-2">Languages</p>
                             <div className="flex flex-wrap gap-2">
                                 {data.techStack.languages.map((tech, i) => (
-                                    <span key={i} className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-xs font-medium text-blue-300 border border-blue-500/30 hover:border-blue-400/50 hover:shadow-md hover:shadow-blue-500/20 transition-all duration-200">
+                                    <motion.span
+                                        key={i}
+                                        initial={{ opacity: 0, scale: 0.7 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.2 + i * 0.05, type: 'spring', stiffness: 200 }}
+                                        whileHover={{ scale: 1.1, y: -2, transition: { duration: 0.15 } }}
+                                        className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-xs font-medium text-blue-300 border border-blue-500/30 cursor-default"
+                                    >
                                         {tech}
-                                    </span>
+                                    </motion.span>
                                 ))}
                             </div>
                         </div>
@@ -57,9 +114,16 @@ export function SummaryCard({ data }: SummaryCardProps) {
                             <p className="text-xs font-semibold text-purple-400 mb-2">Frameworks</p>
                             <div className="flex flex-wrap gap-2">
                                 {data.techStack.frameworks.map((tech, i) => (
-                                    <span key={i} className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-xs font-medium text-purple-300 border border-purple-500/30 hover:border-purple-400/50 hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200">
+                                    <motion.span
+                                        key={i}
+                                        initial={{ opacity: 0, scale: 0.7 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.3 + i * 0.05, type: 'spring', stiffness: 200 }}
+                                        whileHover={{ scale: 1.1, y: -2, transition: { duration: 0.15 } }}
+                                        className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-xs font-medium text-purple-300 border border-purple-500/30 cursor-default"
+                                    >
                                         {tech}
-                                    </span>
+                                    </motion.span>
                                 ))}
                             </div>
                         </div>
@@ -67,42 +131,68 @@ export function SummaryCard({ data }: SummaryCardProps) {
                 </div>
             </motion.div>
 
+            {/* Complexity */}
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="glass-card p-6 rounded-xl md:col-span-2 bg-gradient-to-br from-orange-500/5 to-transparent border border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10"
+                transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                className="glass-card p-6 rounded-xl md:col-span-2 bg-gradient-to-br from-orange-500/5 to-transparent border border-orange-500/20 hover:border-orange-500/40 transition-colors duration-300 hover:shadow-lg hover:shadow-orange-500/10"
             >
                 <div className="flex items-center gap-3 mb-4 flex-wrap">
-                    <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-600/10 shadow-lg flex-shrink-0">
+                    <motion.div
+                        className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-600/10 flex-shrink-0"
+                        whileHover={{ rotate: 15, scale: 1.1, transition: { duration: 0.2 } }}
+                    >
                         <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">Complexity Analysis</h3>
-                    <span className={`ml-auto px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-lg flex-shrink-0 ${data.complexity.score > 7
-                            ? 'bg-gradient-to-r from-red-500/30 to-rose-500/30 text-red-300 border border-red-500/50'
-                            : data.complexity.score > 4
-                                ? 'bg-gradient-to-r from-yellow-500/30 to-amber-500/30 text-yellow-300 border border-yellow-500/50'
-                                : 'bg-gradient-to-r from-green-500/30 to-emerald-500/30 text-green-300 border border-green-500/50'
-                        }`}>
+                    </motion.div>
+                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
+                        Complexity Analysis
+                    </h3>
+                    <motion.span
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
+                        className={`ml-auto px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold border flex-shrink-0 ${scoreBadge}`}
+                    >
                         Score: {data.complexity.score}/10
-                    </span>
+                    </motion.span>
                 </div>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                    {data.complexity.analysis}
-                </p>
-                <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
-                    <div className="text-center p-2 sm:p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                        <p className="text-xs font-semibold text-blue-400 mb-1">Total Files</p>
-                        <p className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{data.complexity.metrics.totalFiles}</p>
-                    </div>
-                    <div className="text-center p-2 sm:p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                        <p className="text-xs font-semibold text-purple-400 mb-1">Total Lines</p>
-                        <p className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{data.complexity.metrics.totalLines.toLocaleString()}</p>
-                    </div>
-                    <div className="text-center p-2 sm:p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                        <p className="text-xs font-semibold text-orange-400 mb-1">Avg/File</p>
-                        <p className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">{data.complexity.metrics.avgLinesPerFile}</p>
-                    </div>
+
+                {/* Animated complexity bar */}
+                <div className="w-full h-2 bg-white/5 rounded-full mb-4 overflow-hidden">
+                    <motion.div
+                        className={`h-full rounded-full bg-gradient-to-r ${scoreColor}`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${data.complexity.score * 10}%` }}
+                        transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    />
+                </div>
+
+                <p className="text-gray-300 text-sm leading-relaxed mb-5">{data.complexity.analysis}</p>
+
+                {/* Animated metric counters */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 border-t border-white/10">
+                    {[
+                        { label: 'Total Files', value: data.complexity.metrics.totalFiles, color: 'from-blue-400 to-cyan-400', accent: 'text-blue-400' },
+                        { label: 'Total Lines', value: data.complexity.metrics.totalLines, color: 'from-purple-400 to-pink-400', accent: 'text-purple-400' },
+                        { label: 'Avg / File', value: data.complexity.metrics.avgLinesPerFile, color: 'from-orange-400 to-amber-400', accent: 'text-orange-400' },
+                    ].map((m, i) => (
+                        <motion.div
+                            key={m.label}
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 + i * 0.1 }}
+                            whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
+                            className="text-center p-2 sm:p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-default"
+                        >
+                            <p className={`text-xs font-semibold mb-1 ${m.accent}`}>{m.label}</p>
+                            <AnimatedNumber
+                                value={m.value}
+                                className={`text-lg sm:text-2xl font-bold bg-gradient-to-r ${m.color} bg-clip-text text-transparent`}
+                            />
+                        </motion.div>
+                    ))}
                 </div>
             </motion.div>
         </div>

@@ -10,6 +10,25 @@ interface ArchitectureViewProps {
     diagram: string;
 }
 
+function sanitizeMermaid(diagram: string): string {
+    return diagram
+        .split('\n')
+        .map(line => {
+            // Fix edge labels: |anything with (parens) or [brackets]| → strip the bad chars
+            line = line.replace(/\|([^|]+)\|/g, (_, label) => {
+                const clean = label.replace(/[()[\]{}]/g, '').trim();
+                return `|"${clean}"|`;
+            });
+            // Fix stadium/round nodes: NodeId(Label) → NodeId["Label"]
+            // But only when it's a node definition, not part of an arrow
+            line = line.replace(/\b([A-Za-z][A-Za-z0-9_]*)\(([^)]+)\)/g, (_, id, label) => {
+                return `${id}["${label.replace(/"/g, '')}"]`;
+            });
+            return line;
+        })
+        .join('\n');
+}
+
 export function ArchitectureView({ diagram }: ArchitectureViewProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [error, setError] = useState<string | null>(null);
@@ -47,7 +66,7 @@ export function ArchitectureView({ diagram }: ArchitectureViewProps) {
     D --> B`;
 
             const diagramToRender = diagram && diagram.trim().length > 10
-                ? diagram
+                ? sanitizeMermaid(diagram)
                 : fallbackDiagram;
 
             try {

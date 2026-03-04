@@ -11,7 +11,7 @@ const execAsync = promisify(exec);
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY || "");
 const model = genAI.getGenerativeModel({
-    model: "gemini-flash-lite-latest",
+    model: "gemini-2.5-flash",
     generationConfig: {
         temperature: 0.4,
         topP: 0.9,
@@ -45,143 +45,84 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, baseMs = 8000): P
 
 const prompts = {
     identifyTechStack: (context: string) => `
-You are an expert software architect. Carefully analyze the full repository content and identify EVERY technology, language, framework, library, and tool used.
+You are an expert software architect. Identify EVERY technology, language, framework, library, and tool used.
 
-Be thorough — look at:
-- File extensions to identify languages
-- import/require statements for libraries
-- config files (package.json, requirements.txt, etc.)
-- Build tools, CI/CD configs, Docker files
+Look at file extensions, import/require statements, config files (package.json, requirements.txt, etc.), build tools, CI/CD configs.
 
 Repository Content:
-${context.slice(0, 50000)}
+${context.slice(0, 30000)}
 
 Return ONLY a valid JSON object with NO markdown fences:
 { "languages": ["string"], "frameworks": ["string"], "tools": ["string"], "packageManager": "string" }
 `,
 
     assessComplexity: (context: string) => `
-You are a senior software engineer conducting a deep complexity assessment.
-
-Analyze the following for:
-- Cyclomatic complexity indicators (nested conditions, loops)
-- Coupling between modules
-- Code duplication patterns
-- Abstraction levels
-- State management complexity
-- Error handling coverage
-- Test coverage signals
+You are a senior software engineer. Assess complexity based on: cyclomatic complexity, coupling, duplication, state management, error handling, test coverage signals.
 
 Repository Content:
-${context.slice(0, 50000)}
+${context.slice(0, 30000)}
 
 Return ONLY a valid JSON object with NO markdown fences:
-{ "score": number (1-10), "level": "Low"|"Medium"|"High", "justification": "detailed paragraph explaining why this score", "metrics": { "totalFiles": number, "totalLines": number } }
+{ "score": number (1-10), "level": "Low"|"Medium"|"High", "justification": "detailed paragraph", "metrics": { "totalFiles": number, "totalLines": number } }
 `,
 
     suggestImprovements: (context: string) => `
-You are a principal engineer doing a thorough code review. Find specific, actionable improvements.
+You are a principal engineer doing a code review. Find specific, actionable improvements.
 
-For each improvement provide:
-- Exact title of the issue
-- Detailed explanation with WHY it is a problem
-- The category (complexity/performance/security/best-practice/refactoring/duplication)
-- Priority (high/medium/low) based on real impact
-- Effort (low/medium/high) to fix
-- Impact description
-- File path where the issue exists
-- Current code snippet (if applicable)
-- Suggested fixed code snippet
-
-Be specific — reference actual function names, variable names, patterns from the code.
+For each improvement: exact title, detailed explanation, category (complexity/performance/security/best-practice/refactoring/duplication), priority (high/medium/low), effort (low/medium/high), impact, file path, current code snippet, suggested fix.
 
 Repository Content:
-${context.slice(0, 50000)}
+${context.slice(0, 30000)}
 
 Return ONLY a valid JSON object with NO markdown fences:
-{ "improvements": [{ "category": "complexity"|"performance"|"duplication"|"security"|"best-practice"|"refactoring", "priority": "high"|"medium"|"low", "title": "string", "description": "string (detailed)", "file": "string", "line": number|null, "currentCode": "string|null", "suggestedCode": "string|null", "impact": "string", "effort": "low"|"medium"|"high" }] }
+{ "improvements": [{ "category": "complexity"|"performance"|"duplication"|"security"|"best-practice"|"refactoring", "priority": "high"|"medium"|"low", "title": "string", "description": "string", "file": "string", "line": number|null, "currentCode": "string|null", "suggestedCode": "string|null", "impact": "string", "effort": "low"|"medium"|"high" }] }
 `,
 
-    detectBugs: (context: string) => `
-You are an expert security researcher and code quality analyst. Do a thorough pass for:
+    detectBugsAndExplain: (context: string) => `
+You are an expert security researcher and software architect. Do TWO tasks in one pass:
 
-ERRORS to look for:
-- Security vulnerabilities (XSS, SQL injection, command injection, path traversal, SSRF)
-- Logic bugs (off-by-one, incorrect conditions, wrong operator)
-- Async issues (race conditions, missing awaits, unhandled promise rejections)
-- Null/undefined dereference risks
-- Memory leaks (unclosed resources, event listeners not removed)
-- Infinite loops or unbounded recursion
+TASK 1 — Bug Detection. Find:
+- Security vulnerabilities (XSS, SQL injection, command injection, SSRF)
+- Logic bugs (off-by-one, wrong conditions, missing awaits)
+- Null/undefined dereference, memory leaks, hardcoded secrets
+- Missing input validation, deprecated API usage, console statements in production
 
-WARNINGS to look for:
-- Missing error handling in async functions
-- Hardcoded secrets or API keys
-- Deprecated API usage
-- Performance bottlenecks (N+1 queries, large synchronous operations)
-- Missing input validation at boundaries
-- Console statements left in production code
-
-For each issue specify the exact file and approximate line number.
+TASK 2 — File Explanation. For each file: what it does, key logic/patterns, dependencies, non-obvious behaviors (min 2 sentences each).
 
 Repository Content:
-${context.slice(0, 60000)}
+${context.slice(0, 40000)}
 
 Return ONLY a valid JSON object with NO markdown fences:
 {
-  "errors": [{ "file": "string", "line": number, "type": "string", "message": "string (specific)", "severity": "critical"|"error", "suggestion": "string (actionable)", "fixCode": "string" }],
-  "warnings": [{ "file": "string", "line": number, "type": "string", "message": "string (specific)", "severity": "warning"|"info", "suggestion": "string (actionable)", "fixCode": "string" }]
+  "errors": [{ "file": "string", "line": number, "type": "string", "message": "string", "severity": "critical"|"error", "suggestion": "string", "fixCode": "string" }],
+  "warnings": [{ "file": "string", "line": number, "type": "string", "message": "string", "severity": "warning"|"info", "suggestion": "string", "fixCode": "string" }],
+  "files": [{ "path": "string", "explanation": "string (min 100 chars)", "keyFeatures": ["string"] }]
 }
 `,
 
-    explainCode: (context: string) => `
-You are an expert software architect writing detailed technical documentation.
-
-For each file in the repository, provide:
-- A thorough explanation of what the file does and WHY it exists
-- Key logic, algorithms, and design patterns used
-- Dependencies and how this file interacts with others
-- Any non-obvious behaviors or gotchas
-- The explanation should be at least 2-3 detailed paragraphs in markdown
-
-Repository Content:
-${context.slice(0, 60000)}
-
-Return ONLY a valid JSON object with NO markdown fences:
-{ "files": [{ "path": "string", "explanation": "string (detailed markdown, min 200 chars)", "keyFeatures": ["string (specific feature, not generic)"] }] }
-`,
-
     generateArchitecture: (context: string) => `
-You are an expert software architect. Analyze this codebase and generate a detailed Mermaid.js flowchart showing the complete DATA FLOW.
+You are an expert software architect. Generate a Mermaid.js flowchart showing the complete DATA FLOW.
 
 CRITICAL RULES:
-- START WITH "flowchart TD" (not "graph TD")
-- Show real components from the actual code (use actual file names and route paths)
-- Trace data from user input → frontend → API routes → services → external APIs → AI → results displayed
+- START WITH "flowchart TD"
+- Show real components from the actual code (actual file names and route paths)
+- Trace data from user input → frontend → API routes → services → external APIs → AI → results
 - Include emojis: 👤 User, 🖥️ Frontend, ⚙️ API, 📦 GitHub, 🤖 AI, 📊 Results
-- 15-20 nodes minimum
-- Label every arrow with what data flows through it
-- Add style classes for visual grouping
+- 12-16 nodes, label every arrow with what data flows through it
 
 Repository Content:
-${context.slice(0, 60000)}
+${context.slice(0, 30000)}
 
 Return ONLY raw Mermaid code, no markdown fences, no explanation text.
 `,
 
     generateSummary: (details: any) => `
-You are a technical writer creating a concise but comprehensive project summary.
+You are a technical writer. Write 3-4 paragraphs covering: what the project does, its architecture, notable features, and overall code quality.
 
-Write 3-4 paragraphs covering:
-1. What the project does and its main purpose
-2. The technical architecture and key design decisions
-3. Notable features, patterns, or interesting implementations
-4. Overall code quality and areas for improvement
-
-Base your summary on this analysis data:
-File Analysis: ${JSON.stringify(details.fileAnalysis).slice(0, 15000)}
+File Analysis: ${JSON.stringify(details.fileAnalysis).slice(0, 8000)}
 Tech Stack: ${JSON.stringify(details.techStack)}
 Complexity: ${JSON.stringify(details.complexity)}
-Key Issues Found: ${JSON.stringify(details.improvements?.slice(0, 5))}
+Key Issues: ${JSON.stringify(details.improvements?.slice(0, 3))}
 
 Return plain text summary (markdown allowed, no JSON wrapper).
 `
@@ -215,50 +156,52 @@ export async function analyzeCodebase(files: { path: string; content: string }[]
     };
 
     try {
-        // --- PHASE 1: Run independent analyses in two batches to avoid rate limits ---
-        console.log("Phase 1: Tech stack, complexity, bug detection...");
-        const [techStackRes, complexityRes, bugRes] = await Promise.all([
-            withRetry(() => model.generateContent(prompts.identifyTechStack(context))),
-            withRetry(() => model.generateContent(prompts.assessComplexity(context))),
-            withRetry(() => model.generateContent(prompts.detectBugs(context))),
-        ]);
+        // Sequential calls to stay within free-tier RPM limits
+        console.log("Step 1/5: Identifying tech stack...");
+        const packageInfoPromise = analyzePackageVersionsAsync(files);
+        const techStackRes = await withRetry(() => model.generateContent(prompts.identifyTechStack(context)));
+        await delay(2000);
 
-        // Small gap between batches to be gentle on rate limits
-        await delay(3000);
+        console.log("Step 2/5: Assessing complexity...");
+        const complexityRes = await withRetry(() => model.generateContent(prompts.assessComplexity(context)));
+        await delay(2000);
 
-        console.log("Phase 2: Code explanation, improvements, packages...");
-        const [explanationRes, improvementsRes, packageInfoRes] = await Promise.all([
-            withRetry(() => model.generateContent(prompts.explainCode(context))),
-            withRetry(() => model.generateContent(prompts.suggestImprovements(context))),
-            analyzePackageVersionsAsync(files),
-        ]);
+        console.log("Step 3/5: Suggesting improvements...");
+        const improvementsRes = await withRetry(() => model.generateContent(prompts.suggestImprovements(context)));
+        await delay(2000);
 
-        await delay(3000);
+        console.log("Step 4/5: Detecting bugs and explaining code...");
+        const bugAndExplainRes = await withRetry(() => model.generateContent(prompts.detectBugsAndExplain(context)));
+        await delay(2000);
 
-        // --- PHASE 2: Architecture and summary depend on earlier results ---
-        console.log("Phase 3: Architecture diagram and final summary...");
+        console.log("Parsing results and building final report...");
         const techStack = parse(techStackRes, { languages: [], frameworks: [], tools: [], packageManager: "Unknown" });
         const complexity = parse(complexityRes, { score: 5, level: "Medium", justification: "Analysis unavailable", metrics: { totalFiles: files.length, totalLines: 0 } });
         const improvementsData = parse(improvementsRes, { improvements: [] });
-        const explanationData = parse(explanationRes, { files: [] });
-        const detectedBugs = parse(bugRes, { errors: [], warnings: [] });
+        const bugAndExplainData = parse(bugAndExplainRes, { errors: [], warnings: [], files: [] });
+
+        const explanationData = { files: bugAndExplainData.files || [] };
+        const detectedBugs = { errors: bugAndExplainData.errors || [], warnings: bugAndExplainData.warnings || [] };
 
         // Build a file explanation map for fast lookup
         const explanationMap = new Map<string, any>();
         (explanationData.files || []).forEach((f: any) => explanationMap.set(f.path, f));
 
-        const [architectureResult, summaryRes] = await Promise.all([
+        console.log("Step 5/5: Generating summary...");
+        const [architectureResult, packageInfoRes] = await Promise.all([
             withRetry(async () => {
                 const { generateArchitectureDiagram } = await import('./simple-architecture');
                 return generateArchitectureDiagram(filteredFiles);
             }),
-            withRetry(() => model.generateContent(prompts.generateSummary({
-                fileAnalysis: explanationData.files?.slice(0, 20),
-                techStack,
-                complexity,
-                improvements: improvementsData.improvements?.slice(0, 8)
-            }))),
+            packageInfoPromise,
         ]);
+
+        const summaryRes = await withRetry(() => model.generateContent(prompts.generateSummary({
+            fileAnalysis: explanationData.files?.slice(0, 10),
+            techStack,
+            complexity,
+            improvements: improvementsData.improvements?.slice(0, 3)
+        })));
 
         const summary = summaryRes.response.text();
 
