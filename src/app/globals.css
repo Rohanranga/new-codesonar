@@ -110,3 +110,40 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* ── Neon scrollbar ───────────────────────────────────────────── */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #7c3aed transparent;
+}
+
+/* Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6366f1, #a855f7, #ec4899);
+  border-radius: 999px;
+  box-shadow:
+    0 0 6px 1px rgba(168, 85, 247, 0.6),
+    0 0 12px 2px rgba(99, 102, 241, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #818cf8, #c084fc, #f472b6);
+  box-shadow:
+    0 0 10px 3px rgba(168, 85, 247, 0.8),
+    0 0 20px 5px rgba(99, 102, 241, 0.5);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

@@ -548,7 +548,37 @@ export default function PrivateAnalysisPage() {
                                                     {showGemini ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                                 </button>
                                             </div>
-                                            {geminiKey && <p className="text-xs text-violet-400/60 mt-1.5 ml-1 flex items-center gap-1"><Check className="w-3 h-3" /> Key entered</p>}
+                                            <div className="mt-2 ml-1 space-y-1">
+                                                {geminiKey && (
+                                                    <p className="text-xs text-violet-400/60 flex items-center gap-1">
+                                                        <Check className="w-3 h-3" /> Key entered
+                                                    </p>
+                                                )}
+                                                <p className="text-xs text-amber-400/60 flex items-start gap-1.5">
+                                                    <span className="mt-px flex-shrink-0">⚠️</span>
+                                                    <span>
+                                                        Each analysis sends a <strong className="text-amber-300/80">very large amount of code</strong> to Gemini.
+                                                        One key can typically handle only <strong className="text-amber-300/80">1–2 analyses</strong> before hitting token limits — use it on your real repo, not tests.
+                                                    </span>
+                                                </p>
+
+                                                {/* Tips box */}
+                                                <div className="rounded-xl border border-amber-500/15 bg-amber-500/5 px-3.5 py-3">
+                                                    <p className="text-[11px] font-semibold text-amber-300/70 uppercase tracking-wider mb-2">💡 Tips to get more out of your key</p>
+                                                    <ul className="space-y-1.5">
+                                                        {[
+                                                            "Create a separate Gemini API key for each repo you want to analyse",
+                                                            "Use smaller / focused repos — fewer files = more headroom",
+                                                            "Don't re-run the same repo; results are heavy and eat quota fast",
+                                                        ].map((tip, i) => (
+                                                            <li key={i} className="flex items-start gap-2 text-xs text-amber-200/45">
+                                                                <span className="mt-0.5 text-amber-400/60 font-bold flex-shrink-0">{i + 1}.</span>
+                                                                {tip}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         {/* ── 2. GitHub Token ── */}
