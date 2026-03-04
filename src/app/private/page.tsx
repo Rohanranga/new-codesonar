@@ -227,7 +227,7 @@ function getLanguage(filename: string): string {
 type Step = "subscribe" | "analyze";
 
 export default function PrivateAnalysisPage() {
-    const [step, setStep] = useState<"subscribe" | "analyze" | "results">("subscribe");
+    const [step, setStep] = useState<"subscribe" | "analyze" | "loading" | "results">("subscribe");
     const [selectedPlan, setSelectedPlan] = useState<string>("pro");
 
     // Form state
@@ -243,16 +243,8 @@ export default function PrivateAnalysisPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [isLoading, setIsLoading] = useState(false);
-    const [loadingStep, setLoadingStep] = useState("");
-    const [loadingPct, setLoadingPct] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<AnalysisResult | null>(null);
-
-    const loadingSteps = [
-        "Validating API keys…", "Fetching repository files…", "Identifying tech stack…",
-        "Running AI bug detection…", "Analyzing code quality…",
-        "Generating architecture diagram…", "Writing code explanations…", "Compiling final report…",
-    ];
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -272,18 +264,10 @@ export default function PrivateAnalysisPage() {
         if (inputMode === "url" && !repoUrl.trim()) { setError("Please enter a GitHub repository URL."); return; }
         if (inputMode === "file" && !staged) { setError("Please upload a source file."); return; }
 
-        setIsLoading(true); setError(null); setResult(null); setLoadingPct(0);
-
-        let stepIdx = 0;
-        setLoadingStep(loadingSteps[0]);
-        const stepInterval = setInterval(() => {
-            stepIdx = Math.min(stepIdx + 1, loadingSteps.length - 1);
-            setLoadingStep(loadingSteps[stepIdx]);
-        }, 7000);
-
-        const pctInterval = setInterval(() => {
-            setLoadingPct(p => Math.min(90, p + 0.3));
-        }, 300);
+        // Immediately show the full premium loading screen
+        setError(null); setResult(null);
+        setIsLoading(true);
+        setStep("loading");
 
         try {
             const body = inputMode === "url"
@@ -295,15 +279,12 @@ export default function PrivateAnalysisPage() {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Analysis failed");
-            setLoadingPct(100);
-            setTimeout(() => {
-                setResult(data);
-                setStep("results");
-            }, 400);
+            setResult(data);
+            setStep("results");
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unexpected error occurred");
+            setStep("analyze"); // go back to form on error
         } finally {
-            clearInterval(stepInterval); clearInterval(pctInterval);
             setIsLoading(false);
         }
     };
@@ -689,34 +670,12 @@ export default function PrivateAnalysisPage() {
                                             )}
                                         </AnimatePresence>
 
-                                        {/* ── Loading progress ── */}
-                                        <AnimatePresence>
-                                            {isLoading && (
-                                                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-                                                    className="space-y-2.5 overflow-hidden"
-                                                >
-                                                    <div className="flex items-center gap-2.5 text-xs text-violet-300">
-                                                        <Loader2 className="w-3.5 h-3.5 animate-spin flex-shrink-0" />
-                                                        <span>{loadingStep}</span>
-                                                    </div>
-                                                    <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                                        <motion.div
-                                                            className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500"
-                                                            style={{ width: `${loadingPct}%` }}
-                                                            transition={{ duration: 0.5, ease: "easeOut" }}
-                                                        />
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-
                                         {/* ── Submit ── */}
                                         <motion.button
                                             type="submit"
-                                            disabled={isLoading}
-                                            whileHover={{ scale: isLoading ? 1 : 1.015, boxShadow: isLoading ? undefined : "0 0 40px rgba(139,92,246,0.4)" }}
-                                            whileTap={{ scale: isLoading ? 1 : 0.985 }}
-                                            className="w-full py-4 rounded-xl font-bold text-sm text-white transition-all relative overflow-hidden disabled:opacity-55 disabled:cursor-not-allowed"
+                                            whileHover={{ scale: 1.015, boxShadow: "0 0 40px rgba(139,92,246,0.4)" }}
+                                            whileTap={{ scale: 0.985 }}
+                                            className="w-full py-4 rounded-xl font-bold text-sm text-white transition-all relative overflow-hidden"
                                             style={{ background: "linear-gradient(135deg,#7c3aed,#a855f7,#c026d3)", boxShadow: "0 0 24px rgba(139,92,246,0.25)" }}
                                         >
                                             <span
@@ -724,10 +683,7 @@ export default function PrivateAnalysisPage() {
                                                 style={{ background: "linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.12) 50%, transparent 65%)" }}
                                             />
                                             <span className="relative flex items-center justify-center gap-2">
-                                                {isLoading
-                                                    ? <><Loader2 className="w-4 h-4 animate-spin" />Analyzing…</>
-                                                    : <><Fingerprint className="w-4 h-4" />Start Private Analysis</>
-                                                }
+                                                <Fingerprint className="w-4 h-4" />Start Private Analysis
                                             </span>
                                         </motion.button>
 
@@ -763,6 +719,25 @@ export default function PrivateAnalysisPage() {
                                 </button>
                             </div>
                             <AnalysisDashboard data={result} isLoading={false} error={null} />
+                        </motion.div>
+                    )}
+
+                    {/* ── STEP: Loading (same as normal analysis) ── */}
+                    {step === "loading" && (
+                        <motion.div
+                            key="loading"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="flex-1 px-4 sm:px-6"
+                        >
+                            {/* Private badge */}
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 font-medium w-fit mx-auto mt-6 mb-2">
+                                <Fingerprint className="w-3.5 h-3.5" />
+                                Private Analysis · Secure
+                            </div>
+                            <AnalysisDashboard data={null} isLoading={true} error={null} />
                         </motion.div>
                     )}
                 </AnimatePresence>
