@@ -460,7 +460,7 @@ export default function PrivateAnalysisPage() {
                                 </p>
 
                                 {/* Trust row */}
-                                <div className="flex items-center gap-6 mt-2">
+                                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-2">
                                     {[
                                         { icon: Shield, label: "End-to-end encrypted" },
                                         { icon: Lock, label: "Keys never stored" },

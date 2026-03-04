@@ -29,8 +29,15 @@
   --animate-spotlight: spotlight 2s ease 0.75s 1 forwards;
 
   @keyframes spotlight {
-    0% { opacity: 0; transform: translate(-72%, -62%) scale(0.5); }
-    100% { opacity: 1; transform: translate(-50%, -40%) scale(1); }
+    0% {
+      opacity: 0;
+      transform: translate(-72%, -62%) scale(0.5);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -40%) scale(1);
+    }
   }
 }
 
@@ -83,12 +90,19 @@
 @layer base {
   * {
     @apply border-border;
-    cursor: none !important;
   }
 
-  /* Restore text cursor inside form fields */
-  input, textarea, select {
-    cursor: text !important;
+  /* Hide cursor only on mouse-driven devices — not on touch (mobile) */
+  @media (pointer: fine) {
+    * {
+      cursor: none !important;
+    }
+
+    input,
+    textarea,
+    select {
+      cursor: text !important;
+    }
   }
 
   body {

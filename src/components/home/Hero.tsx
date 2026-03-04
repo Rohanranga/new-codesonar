@@ -196,7 +196,7 @@ export function Hero({ onAnalyze, isLoading }: HeroProps) {
         <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] bg-purple-600/6 rounded-full blur-[100px] pointer-events-none" />
 
         {/* LEFT — text + input */}
-        <div className="relative z-10 flex flex-col justify-center w-full lg:w-1/2 px-6 sm:px-10 md:px-14 lg:px-16 xl:px-24 pt-28 pb-16 lg:pt-0 lg:pb-0">
+        <div className="relative z-10 flex flex-col justify-center w-full lg:w-1/2 px-5 sm:px-10 md:px-14 lg:px-16 xl:px-24 pt-24 sm:pt-28 pb-12 lg:pt-0 lg:pb-0">
 
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -236,7 +236,7 @@ export function Hero({ onAnalyze, isLoading }: HeroProps) {
             {/* Headline */}
             <motion.h1
               animate={glitchControls}
-              className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-bold tracking-tight leading-[1.08] mb-6 cursor-default"
+              className="text-3xl sm:text-5xl md:text-6xl xl:text-7xl font-bold tracking-tight leading-[1.08] mb-5 cursor-default"
               onHoverStart={() => {
                 glitchControls.start({
                   x: [0, -3, 3, 0],
@@ -265,7 +265,7 @@ export function Hero({ onAnalyze, isLoading }: HeroProps) {
 
             {/* Subtitle */}
             <motion.p
-              className="text-base sm:text-lg text-white/40 max-w-md mb-10 leading-relaxed"
+              className="text-sm sm:text-lg text-white/40 max-w-full sm:max-w-md mb-8 leading-relaxed"
               whileHover={{ color: 'rgba(255,255,255,0.6)', x: 2, transition: { duration: 0.2 } }}
             >
               CodeSonar uses advanced AI to analyze repositories, visualize
@@ -288,7 +288,7 @@ export function Hero({ onAnalyze, isLoading }: HeroProps) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.35 }}
-            className="mt-10 flex flex-wrap gap-8"
+            className="mt-8 flex flex-wrap gap-6 sm:gap-8"
           >
             {[
               { val: '100+', label: 'Languages' },
@@ -308,10 +308,10 @@ export function Hero({ onAnalyze, isLoading }: HeroProps) {
           </motion.div>
         </div>
 
-        {/* RIGHT — Spline robot */}
+        {/* RIGHT — Spline robot (hidden on mobile) */}
         <motion.div
           ref={robotRef}
-          className="relative w-full lg:w-1/2 h-[55vw] sm:h-[50vw] lg:h-auto lg:min-h-screen flex-shrink-0"
+          className="hidden lg:block relative w-full lg:w-1/2 h-[55vw] sm:h-[50vw] lg:h-auto lg:min-h-screen flex-shrink-0"
           style={{
             y: robotYSpring,
             scale: robotScale,

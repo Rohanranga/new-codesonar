@@ -4,6 +4,12 @@ import { useEffect, useRef, useState } from "react";
 
 type CursorState = "default" | "hover" | "click" | "text";
 
+// Don't render on touch-only devices (phones/tablets have no mouse)
+function isTouchOnly() {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(pointer: coarse)").matches;
+}
+
 /* ─── visual config per state ───────────────────────────────── */
 const CFG: Record<CursorState, {
     dotW: number; dotH: number; dotR: number;
@@ -53,6 +59,9 @@ const CFG: Record<CursorState, {
 const TRANSITION = "width 0.12s ease, height 0.12s ease, border-radius 0.12s ease, background 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease";
 
 export function NeonCursor() {
+    // Don't render on touch-primary devices (phones/tablets)
+    if (isTouchOnly()) return null;
+
     const dotRef = useRef<HTMLDivElement>(null);
     const ringRef = useRef<HTMLDivElement>(null);
     const haloRef = useRef<HTMLDivElement>(null);
