@@ -7,10 +7,10 @@ import {
     Fingerprint, Eye, EyeOff, Info, X, Github, Key, Cpu,
     ArrowLeft, Search, Upload, FileCode, CheckCircle,
     Loader2, ExternalLink, Zap, Crown, Sparkles, Shield,
-    Star, ChevronRight, Lock, Check,
+    Star, ChevronRight, Lock, Check, RotateCcw,
 } from "lucide-react";
-
-
+import { AnalysisDashboard } from "@/components/dashboard/AnalysisDashboard";
+import { AnalysisResult } from "@/types/analysis";
 
 /* ──────────────────────────────────────────────────────────────
    Logo — animated Fingerprint with orbit rings
@@ -227,7 +227,7 @@ function getLanguage(filename: string): string {
 type Step = "subscribe" | "analyze";
 
 export default function PrivateAnalysisPage() {
-    const [step, setStep] = useState<Step>("subscribe");
+    const [step, setStep] = useState<"subscribe" | "analyze" | "results">("subscribe");
     const [selectedPlan, setSelectedPlan] = useState<string>("pro");
 
     // Form state
@@ -246,7 +246,7 @@ export default function PrivateAnalysisPage() {
     const [loadingStep, setLoadingStep] = useState("");
     const [loadingPct, setLoadingPct] = useState(0);
     const [error, setError] = useState<string | null>(null);
-    const [result, setResult] = useState<any | null>(null);
+    const [result, setResult] = useState<AnalysisResult | null>(null);
 
     const loadingSteps = [
         "Validating API keys…", "Fetching repository files…", "Identifying tech stack…",
@@ -296,7 +296,10 @@ export default function PrivateAnalysisPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Analysis failed");
             setLoadingPct(100);
-            setTimeout(() => setResult(data), 400);
+            setTimeout(() => {
+                setResult(data);
+                setStep("results");
+            }, 400);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unexpected error occurred");
         } finally {
@@ -358,10 +361,20 @@ export default function PrivateAnalysisPage() {
                 {/* Back */}
                 <div className="pt-20 px-6 sm:px-10">
                     <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
-                        <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-white/30 hover:text-white/60 transition-colors group">
-                            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-                            Back to home
-                        </Link>
+                        {step === "results" ? (
+                            <button
+                                onClick={() => { setStep("subscribe"); setResult(null); }}
+                                className="inline-flex items-center gap-1.5 text-sm text-white/30 hover:text-white/60 transition-colors group"
+                            >
+                                <RotateCcw className="w-3.5 h-3.5 group-hover:-rotate-45 transition-transform" />
+                                New Analysis
+                            </button>
+                        ) : (
+                            <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-white/30 hover:text-white/60 transition-colors group">
+                                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                                Back to home
+                            </Link>
+                        )}
                     </motion.div>
                 </div>
 
@@ -723,27 +736,33 @@ export default function PrivateAnalysisPage() {
                                         </p>
                                     </form>
                                 </motion.div>
-
-                                {/* Success banner */}
-                                <AnimatePresence>
-                                    {result && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 16 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.5 }}
-                                            className="mt-6 p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/8 border border-emerald-500/20 text-center"
-                                        >
-                                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 220, delay: 0.1 }}>
-                                                <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
-                                            </motion.div>
-                                            <p className="text-emerald-400 font-bold text-lg mb-1">Analysis Complete!</p>
-                                            <p className="text-white/45 text-sm">
-                                                {result.complexity?.metrics?.totalFiles ?? 0} files · {result.errors?.length ?? 0} errors · {result.improvements?.length ?? 0} improvements
-                                            </p>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
                             </div>
+                        </motion.div>
+                    )}
+
+                    {/* ── STEP 3: Full Results ── */}
+                    {step === "results" && result && (
+                        <motion.div
+                            key="results"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.5 }}
+                            className="flex-1 px-4 sm:px-6 lg:px-8 py-6"
+                        >
+                            {/* Private badge above dashboard */}
+                            <div className="flex items-center justify-between mb-4 max-w-7xl mx-auto">
+                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 font-medium">
+                                    <Fingerprint className="w-3.5 h-3.5" />
+                                    Private Analysis Results
+                                </div>
+                                <button
+                                    onClick={() => { setStep("subscribe"); setResult(null); }}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-violet-500/10 hover:border-violet-500/20 text-xs text-white/40 hover:text-violet-300 transition-all"
+                                >
+                                    <RotateCcw className="w-3 h-3" /> New Analysis
+                                </button>
+                            </div>
+                            <AnalysisDashboard data={result} isLoading={false} error={null} />
                         </motion.div>
                     )}
                 </AnimatePresence>
