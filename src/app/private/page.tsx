@@ -10,6 +10,7 @@ import {
     Star, ChevronRight, Lock, Check, RotateCcw,
 } from "lucide-react";
 import { AnalysisDashboard } from "@/components/dashboard/AnalysisDashboard";
+import { ChatInterface } from "@/components/chat/ChatInterface";
 import { AnalysisResult } from "@/types/analysis";
 
 /* ──────────────────────────────────────────────────────────────
@@ -245,6 +246,7 @@ export default function PrivateAnalysisPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<AnalysisResult | null>(null);
+    const [chatContext, setChatContext] = useState("");
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -280,6 +282,30 @@ export default function PrivateAnalysisPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Analysis failed");
             setResult(data);
+            // Build compact context string for the chatbot (same as public analysis)
+            const ctx = `
+              Summary: ${data.summary}
+
+              Tech Stack:
+              - Languages: ${data.techStack.languages.join(", ")}
+              - Frameworks: ${data.techStack.frameworks.join(", ")}
+              - Tools: ${data.techStack.tools.join(", ")}
+
+              Complexity: Score ${data.complexity.score}/10
+              ${data.complexity.analysis}
+              Metrics: ${data.complexity.metrics.totalFiles} files, ${data.complexity.metrics.totalLines} lines
+
+              Errors: ${data.errors.length} critical issues
+              Warnings: ${data.warnings.length} warnings
+
+              Packages: ${data.packages.total} total (${data.packages.outdated?.length ?? 0} potentially outdated)
+
+              Quality Issues:
+              ${data.qualityAnalysis.map((q: any) => `- ${q.category}: ${q.issue} (${q.priority})`).join("\n")}
+
+              Files Analyzed: ${data.fileAnalysis.length} files with detailed breakdown
+            `;
+            setChatContext(ctx);
             setStep("results");
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unexpected error occurred");
@@ -750,6 +776,11 @@ export default function PrivateAnalysisPage() {
                             </div>
                             <AnalysisDashboard data={result} isLoading={false} error={null} />
                         </motion.div>
+                    )}
+
+                    {/* ── Chat: shown once results are ready ── */}
+                    {step === "results" && result && (
+                        <ChatInterface context={chatContext} />
                     )}
 
                     {/* ── STEP: Loading (same as normal analysis) ── */}
