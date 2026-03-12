@@ -4,6 +4,7 @@ import { AnalysisResult } from "@/types/analysis";
 import { SummaryCard } from "../analysis/SummaryCard";
 import { ArchitectureView } from "../analysis/ArchitectureView";
 import { DetailedAnalysis } from "../analysis/DetailedAnalysis";
+import { DownloadPDF } from "../analysis/DownloadPDF";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -356,6 +357,7 @@ export function AnalysisDashboard({ data, isLoading, error }: AnalysisDashboardP
                     <SummaryCard data={data} />
                     <ArchitectureView diagram={data.architecture} />
                     <DetailedAnalysis data={data} />
+                    <DownloadPDF data={data} />
                 </motion.div>
             )}
         </AnimatePresence>
